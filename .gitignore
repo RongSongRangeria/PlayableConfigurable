@@ -1,0 +1,21 @@
+# Third-party SDK (VS2010 ISO, KenshiLib/Boost/Ogre/MyGUI, cloned examples)
+sdk/
+
+# Build output
+x64/
+Debug/
+Release/
+*.obj
+*.pdb
+*.ilk
+*.lastbuildstate
+*.tlog
+*.log
+.vs/
+*.user
+
+# Leftover pre-rename duplicate
+PlayableRacesPlugin/
+
+# Shipping package - regenerated from source + a build, not tracked
+dist/

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default SDK paths so no environment variables are needed: everything lives
+     in the sdk\ folder staged 2026-08-04. Env vars, if set, win over these. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <KENSHILIB_DIR Condition="'$(KENSHILIB_DIR)' == ''">$(MSBuildThisFileDirectory)sdk\deps\KenshiLib</KENSHILIB_DIR>
+    <BOOST_INCLUDE_PATH Condition="'$(BOOST_INCLUDE_PATH)' == ''">$(MSBuildThisFileDirectory)sdk\deps\boost_1_60_0</BOOST_INCLUDE_PATH>
+  </PropertyGroup>
+</Project>

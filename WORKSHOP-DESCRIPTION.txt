@@ -1,0 +1,48 @@
+[Paste this into the Steam Workshop description field in FCS when you upload.
+Steam Workshop supports this BBCode subset: b, i, u, strike, h1, list/*, url,
+spoiler. Not included here since Steam renders it separately: title (comes
+from the upload name), tags (pick below), preview image (upload separately).]
+
+[h1]PlayableConfigurable[/h1]
+
+Makes races and subraces playable in character creation - adapting to
+[b]your[/b] mod list, every time you launch. Add or remove race mods and this
+just keeps working: no patch to regenerate, no update to download.
+
+[b]Requires RE_Kenshi[/b] (v0.3.0+, tested against the current v0.3.4). Without
+it this mod does nothing.
+[url=https://www.nexusmods.com/kenshi/mods/847]Get RE_Kenshi here[/url] - just grab the latest release.
+
+[h1]How it works[/h1]
+[list]
+[*] Enable this mod and RE_Kenshi, then launch.
+[*] Click the RACES button on the main menu.
+[*] Toggle whole race groups or individual subraces. Presets: Enable All,
+Disable All, Default All (whatever your mods themselves mark playable),
+Vanilla Only (exactly Kenshi's own 8 selectable races).
+[*] Changes apply immediately - no restart needed to see them in a new game.
+[/list]
+
+[h1]Features[/h1]
+[list]
+[*] Rows are split into Race Groups, Modded Groups, and Uncategorized (races
+with no group, sorted by whichever mod added them), so a big modlist doesn't
+turn into a wall of checkboxes.
+[*] Hover any entry to see which mod it's from, or that it's vanilla.
+[*] Optional: allow animal races to be selected (borrowed creator sliders -
+may look odd, still experimental).
+[*] Optional: unlock per-start race restrictions.
+[*] Settings for a race whose mod isn't currently loaded are remembered and
+come back the moment that mod is re-enabled.
+[/list]
+
+[h1]Scope[/h1]
+Only character creation and the character editor are touched. NPCs, animals,
+factions, and existing saves behave exactly as vanilla/your other mods intend.
+
+[h1]License[/h1]
+GPLv3. Source is included in the download (source/ folder) since this plugin
+links KenshiLib. See the README for details.
+
+[i]If you run into a race that won't toggle, or a mod whose races don't show
+up right, leave a comment with the mod name and I'll take a look.[/i]
