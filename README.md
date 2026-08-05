@@ -216,6 +216,20 @@ Kenshi's own shipped translation catalogs (`locale/<code>/LC_MESSAGES/
 main.po`) to stay consistent with the base game's vocabulary rather than
 inventing our own.
 
+**Only 9 of the 12 are Kenshi's own official languages - confirmed
+directly against FCS's own "Translation mode" dropdown (2026-08-05,
+screenshot):** `en_GB/ru_RU/es_ES/zh_CN/de_DE/fr_FR/ja_JP/ko_KR/pt_BR`,
+exactly matching the `locale/` folder listing from earlier. `uk_UA`,
+`pl_PL`, and `zh_TW` aren't in that list at all - they were added because
+some race/animal mods in the community happen to ship translations (and
+therefore fonts) for them, not because Kenshi itself does. `FontHas`
+already handles the *safety* side of this correctly regardless of
+official-vs-not (it checks whatever font is actually loaded, from
+whatever source), but from a "will this reliably look right" standpoint
+the honest framing is: 9 guaranteed, 3 opportunistic. Documented as such
+in `WORKSHOP-DESCRIPTION.txt` and `README.txt` rather than presenting all
+12 as equally supported.
+
 **Race/group names are not translated by us, but likely already are by
 Kenshi itself.** `fcs.def` flags both `RACE` and `RACE_GROUP` as
 `TRANSLATE: ALL`, and Kenshi's shipped `locale/<code>/gamedata.po` catalogs

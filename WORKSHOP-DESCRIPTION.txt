@@ -13,6 +13,12 @@ just keeps working (i hope): no need for conflicting patches and playable mods t
 German, French, Japanese, Korean, Portuguese, Ukrainian, Polish. Follows your
 Kenshi client automatically, with a manual override button in the window -
 see Features below for details.
+9 of these (all but Ukrainian, Polish, and Chinese Traditional) are Kenshi's
+own officially released languages - the same list FCS's own Translation
+Mode offers. The other 3 are included because some race/animal mods ship
+translations for them, but whether they actually render depends on some
+other loaded mod supplying that font - anything past the official 9 is a
+bit of a tossup.
 
 [h1]Requirements[/h1]
 [b]Requires RE_Kenshi[/b] (v0.3.0+, tested against the current v0.3.4). Without
@@ -61,6 +67,12 @@ say so in the comments and I'll fix it.[/i]
 традиционный китайский, немецкий, французский, японский, корейский,
 португальский, украинский, польский), а кнопка Language внизу окна
 позволяет выбрать язык вручную.
+9 из них (все, кроме украинского, польского и традиционного китайского) -
+это официально выпущенные языки самого Kenshi, тот же список, что
+предлагает Translation Mode в FCS. Остальные 3 добавлены потому, что
+некоторые моды на расы/животных содержат переводы для них, но будут ли
+они реально отображаться, зависит от того, загружен ли ещё какой-то мод,
+дающий нужный шрифт - всё, что сверх официальных 9, скорее лотерея.
 
 [h1]Требования[/h1]
 Требуется RE_Kenshi (v0.3.0+, проверено на текущей v0.3.4). Без него этот мод
@@ -111,6 +123,13 @@ simplificado y tradicional, alemán, francés,
 japonés, coreano, portugués, ucraniano, polaco),
 con un botón Language en la parte inferior de la ventana para
 elegirlo a mano.
+9 de ellos (todos menos ucraniano, polaco y chino tradicional) son los
+idiomas oficialmente publicados por el propio Kenshi - la misma lista
+que ofrece el Translation Mode de FCS. Los otros 3 se incluyen porque
+algunos mods de razas/animales traen sus propias traducciones, pero que
+realmente se vean bien depende de si hay otro mod cargado que aporte esa
+fuente - todo lo que quede fuera de los 9 oficiales es un poco una
+lotería.
 
 [h1]Requisitos[/h1]
 Requiere RE_Kenshi (v0.3.0+, probado con la v0.3.4 actual). Sin él, este mod
@@ -160,6 +179,10 @@ en blanco.
 [b]支持语言:[/b] 会自动跟随你 Kenshi 的语言设置 - 支持 12 种语言(英语、
 俄语、西班牙语、简体中文、繁体中文、德语、法语、日语、韩语、葡萄牙语、
 乌克兰语、波兰语),窗口底部有个 Language 按钮可以手动切换。
+其中 9 种(除乌克兰语、波兰语、繁体中文外)是 Kenshi 官方发布的语言,和
+FCS 自带的 Translation Mode 列表一致。另外 3 种之所以加入,是因为部分
+种族/动物模组自带了这些语言的翻译,但能否正常显示取决于是否有其他已加
+载的模组提供了相应字体 - 官方 9 种语言之外的都算是碰运气。
 
 [h1]环境需求[/h1]
 需要 RE_Kenshi(v0.3.0 及以上,已在当前 v0.3.4 上测试过)。没有它,本模组不会
