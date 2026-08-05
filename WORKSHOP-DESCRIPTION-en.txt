@@ -11,16 +11,20 @@ Makes races and subraces universally configurable and playable adapting to
 just keeps working (i hope): no need for conflicting patches and playable mods that cause conflict with your anim and model suites.
 
 [b]Languages:[/b] English, Русский, Español, 简体中文, Deutsch, Français,
-日本語, 한국어, Português, Українська, Polski, 繁體中文. Follows your Kenshi
-client automatically; a Language button in the window lets you switch
-manually.
-9 of these are Kenshi's own official languages (same list as FCS's
-Translation Mode) - Українська, Polski, and 繁體中文 are extra, included
-because some race/animal mods ship translations for them, but whether they
-render depends on some other loaded mod supplying that font.
-Language support follows your own Kenshi installation - enabling this mod
-won't give you a 简体中文 window if your Kenshi client itself is set to
-English.
+日本語, 한국어, Português, Українська, Polski, 繁體中文.
+
+[b]Auto-detect:[/b] Follows your Kenshi client automatically; a Language
+button in the window lets you switch manually.
+
+[b]Official vs. extra:[/b] 9 of these are Kenshi's own official languages
+(same list as FCS's Translation Mode) - Українська, Polski, and 繁體中文
+are extra, included because some race/animal mods ship translations for
+them, but whether they render depends on some other loaded mod supplying
+that font.
+
+[b]Per-install:[/b] Language support follows your own Kenshi installation -
+enabling this mod won't give you a 简体中文 window if your Kenshi client
+itself is set to English.
 
 [h1]Requirements[/h1]
 [b]Requires RE_Kenshi[/b] (v0.3.0+, tested against the current v0.3.4). Without

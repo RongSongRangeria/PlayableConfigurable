@@ -1,0 +1,98 @@
+[Füge dies in Steams Workshop-Beschreibungsfeld für den DEUTSCHEN Sprach-Slot
+ein, über das Sprachen-Dropdown im FCS/Steam-Workshop-Editor. Steam Workshop
+unterstützt diesen BBCode-Umfang: b, i, u, strike, h1, list/*, url, spoiler.
+Nicht enthalten, da Steam es separat rendert: Titel (Upload-Name), Tags,
+Vorschaubild.]
+
+[h1]PlayableConfigurable[/h1]
+
+Macht Rassen und Unterrassen universell konfigurierbar und spielbar, passend
+zu [b]deiner[/b] Modliste, jedes Mal wenn du das Spiel startest. Füge
+Rassen-Mods hinzu oder entferne sie, und das hier funktioniert einfach
+weiter (hoffe ich): keine widersprüchlichen Patches nötig und keine
+spielbaren Mods mehr, die mit deinen Anim- und Modell-Suites in Konflikt
+geraten.
+
+[i]Diese Beschreibung wurde maschinell von einer KI übersetzt und noch nicht
+von einem Muttersprachler geprüft. Falls dir etwas komisch vorkommt oder
+falsch übersetzt ist, hinterlass gerne einen Kommentar, damit ich es
+korrigieren kann.[/i]
+
+[b]Sprachen:[/b] English, Русский, Español, 简体中文, Deutsch, Français,
+日本語, 한국어, Português, Українська, Polski, 繁體中文.
+
+[b]Automatische Erkennung:[/b] Folgt automatisch deinem Kenshi-Client; ein
+Sprache-Button im Fenster erlaubt dir den manuellen Wechsel.
+
+[b]Offiziell vs. zusätzlich:[/b] 9 davon sind Kenshis eigene offizielle
+Sprachen (dieselbe Liste wie im Translation Mode des FCS) - Українська,
+Polski und 繁體中文 sind zusätzlich dabei, weil manche Rassen-/Tier-Mods
+Übersetzungen dafür mitliefern, aber ob sie korrekt dargestellt werden,
+hängt davon ab, ob ein anderer geladener Mod die passende Schriftart
+mitbringt.
+
+[b]Abhängig von deiner Installation:[/b] Die Sprachunterstützung richtet
+sich nach deiner eigenen Kenshi-Installation - dieses Mod zu aktivieren
+gibt dir kein 简体中文-Fenster, wenn dein Kenshi-Client selbst auf Englisch
+eingestellt ist.
+
+[h1]Voraussetzungen[/h1]
+[b]Benötigt RE_Kenshi[/b] (v0.3.0+, getestet mit der aktuellen v0.3.4). Ohne
+RE_Kenshi tut dieses Mod gar nichts.
+[url=https://www.nexusmods.com/kenshi/mods/847]Hier gibt's RE_Kenshi[/url] - schnapp dir einfach das neueste Release. Es wurde mit RE_Kenshi 3.4 gebaut, könnte aber theoretisch auch mit 3.0 funktionieren.
+
+[h1]So funktioniert's[/h1]
+[list]
+[*] Aktiviere dieses Mod und RE_Kenshi, dann starte das Spiel.
+[*] Klicke im Hauptmenü auf den RASSEN-Button.
+[*] Schalte ganze Rassengruppen oder einzelne Unterrassen um.
+Voreinstellungen: ALLE AKTIVIEREN, ALLE DEAKTIVIEREN, STANDARD (was deine
+Mods selbst als spielbar markieren), NUR VANILLA (was das Basisspiel Kenshi
+als spielbar markiert hat).
+[*] Änderungen wirken sofort - kein Neustart nötig, um sie in einem neuen
+Spiel zu sehen.
+[/list]
+
+[h1]Features[/h1]
+[list]
+[*] Zeilen sind unterteilt in Rassengruppen, Mod-Gruppen und Unkategorisiert
+(Rassen ohne Gruppe, sortiert danach, welcher Mod sie hinzugefügt hat),
+damit aus einer großen Modliste keine Wand aus Checkboxen wird.
+[*] Fahre mit der Maus über einen Eintrag, um zu sehen, aus welchem Mod er stammt, oder ob er aus einem Vanilla-Paket kommt.
+[*] Erlaubt die Auswahl von Tierrassen (ich verspreche nicht, dass die alle gut funktionieren... ich schau dich an, ironsides).
+[*] Hebt die rassenspezifischen Einschränkungen pro Startszenario auf (nicht für alle Starts empfohlen, es kann durchaus den ein oder anderen davon kaputt machen).
+[*] Gespeicherte Einstellungen für eine Rasse, deren Mod gerade nicht
+geladen ist, werden gemerkt und kommen zurück, sobald dieser Mod wieder
+aktiviert wird.
+[*] Folgt automatisch der Sprache deines Kenshi (siehe Sprachen oben), mit
+einem manuellen Sprache-Button unten im Fenster.
+[/list]
+
+[h1]Umfang[/h1]
+Nur die Charaktererstellung und der Charakter-Editor werden angefasst.
+NPCs, Tiere, Fraktionen und bestehende Spielstände verhalten sich genau so,
+wie es Vanilla/deine anderen Mods vorsehen.
+
+Im Mod gibt's ein detaillierteres technisches Readme (inklusive Lizenz- und
+Quellcode-Infos), falls du dieses Utility selbst nutzen möchtest, oder die
+Methodik, die ich für andere Patching-Vorhaben verwendet habe.
+
+Es sollte universell mit jedem existierenden Mod funktionieren - wir laden
+das hier vor, nachdem alle aktivierten Mods aus dem Launcher gelesen
+wurden, sodass die Mod-Einstellungen der Rassen aus diesem Mod alle anderen
+überschreiben.
+
+ich hab das hier teilweise gebaut, weil ich mich so aufgeregt hab beim
+Versuch, neue Rassen und Tiere aus Mods spielbar zu machen, und 3 Stunden
+damit verbracht hab, mein Spiel immer wieder zu starten, um fehlende
+Modelle zu fixen. das hier war ein Nebenprojekt davon, weil die Konflikte
+von 7 spielbare-Rassen-Mods verursacht wurden.
+
+Das SOLLTE mit allen Mods kompatibel sein, die Rassen bearbeiten oder
+hinzufügen. wenn nicht? sag mir Bescheid, das hier war ein bisschen ein
+Experiment, um zu sehen, ob ich die Ladereihenfolge-Priorisierung umgehen
+und mein Problem getrennt von anderen Playables-Mods lösen kann.
+
+[i]Falls du auf eine Rasse stößt, die sich nicht umschalten lässt, oder
+einen Mod, dessen Rassen nicht richtig angezeigt werden, hinterlass einen
+Kommentar mit dem Modnamen und ich schau's mir an.[/i]

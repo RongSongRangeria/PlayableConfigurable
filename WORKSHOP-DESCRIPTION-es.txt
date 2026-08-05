@@ -1,0 +1,96 @@
+[Pega esto en el campo de descripción del Workshop de Steam para el idioma
+español, mediante el desplegable de idiomas en el editor de Workshop de
+FCS/Steam. Steam Workshop admite este subconjunto de BBCode: b, i, u, strike,
+h1, list/*, url, spoiler. No incluido aquí porque Steam lo renderiza por
+separado: título (nombre de subida), etiquetas, imagen de vista previa.]
+
+[h1]PlayableConfigurable[/h1]
+
+Hace que las razas y subrazas sean configurables y jugables de forma
+universal, adaptándose a [b]tu[/b] lista de mods cada vez que inicias el
+juego. Añade o quita mods de razas y esto sigue funcionando (eso espero): no
+hace falta parches que generen conflictos, ni mods jugables que choquen con
+tus conjuntos de animaciones y modelos.
+
+[i]Esta descripción se ha traducido automáticamente con IA y todavía no la
+ha revisado un hablante nativo. Si algo suena raro, está mal traducido o
+simplemente no se entiende, déjame un comentario y lo arreglo.[/i]
+
+[b]Idiomas:[/b] English, Русский, Español, 简体中文, Deutsch, Français,
+日本語, 한국어, Português, Українська, Polski, 繁體中文.
+
+[b]Detección automática:[/b] Sigue automáticamente el idioma de tu cliente
+de Kenshi; un botón de Idioma en la ventana te permite cambiarlo
+manualmente.
+
+[b]Oficiales frente a extra:[/b] 9 de ellos son los idiomas oficiales
+propios de Kenshi (la misma lista que el Modo Traducción de FCS) -
+Українська, Polski y 繁體中文 son extra, incluidos porque algunos mods de
+razas/animales traen traducciones para ellos, aunque que se muestren bien
+depende de que algún otro mod cargado aporte esa fuente.
+
+[b]Según tu instalación:[/b] El soporte de idiomas depende de tu propia
+instalación de Kenshi - activar este mod no te va a dar una ventana en
+简体中文 si tu cliente de Kenshi está configurado en inglés.
+
+[h1]Requisitos[/h1]
+[b]Requiere RE_Kenshi[/b] (v0.3.0+, probado con la versión actual v0.3.4). Sin
+él, este mod no hace nada.
+[url=https://www.nexusmods.com/kenshi/mods/847]Consigue RE_Kenshi aquí[/url] - solo tienes que descargar la última versión. Se creó con RE_Kenshi 3.4, pero en teoría podría funcionar con la 3.0.
+
+[h1]Cómo funciona[/h1]
+[list]
+[*] Activa este mod y RE_Kenshi, y luego inicia el juego.
+[*] Haz clic en el botón RAZAS del menú principal.
+[*] Activa o desactiva grupos de razas enteros o subrazas individuales.
+Ajustes predefinidos: ACTIVAR TODO, DESACTIVAR TODO, POR DEFECTO (lo que tus
+propios mods marquen como jugable), SOLO VAINILLA (lo que el juego base de
+Kenshi marca como jugable).
+[*] Los cambios se aplican al instante - no hace falta reiniciar para verlos
+en una partida nueva.
+[/list]
+
+[h1]Características[/h1]
+[list]
+[*] Las filas se dividen en Grupos de raza, Grupos de mods y Sin categoría
+(razas sin grupo, ordenadas según el mod que las añadió), para que una lista
+de mods grande no se convierta en una pared de casillas.
+[*] Pasa el cursor por encima de cualquier entrada para ver de qué mod viene,
+o si viene de un paquete vainilla.
+[*] Permite seleccionar razas de animales (no prometo que todas funcionen
+bien... te estoy mirando a ti, ironsides).
+[*] Desbloquea las restricciones de raza por tipo de inicio (no recomendado
+para todos los inicios, puede llegar a romper de verdad alguno que otro).
+[*] La configuración guardada de una raza cuyo mod no está cargado en ese
+momento se recuerda y vuelve en cuanto ese mod se reactiva.
+[*] Sigue automáticamente el idioma de tu Kenshi (ver Idiomas más arriba),
+con un botón de anulación manual en la parte inferior de la ventana.
+[/list]
+
+[h1]Alcance[/h1]
+Solo se ven afectados la creación de personaje y el editor de personaje. Los
+PNJ, los animales, las facciones y las partidas guardadas existentes se
+comportan exactamente como vainilla/tus otros mods pretenden.
+
+Hay un readme técnico más detallado en el mod (incluye información de
+licencia y del código fuente) por si quieres aprovechar esta utilidad, o la
+metodología que usé para otros esfuerzos de parcheo.
+
+Debería funcionar de forma universal con cualquier mod que exista; esto se
+precarga después de leer todos los mods activados desde el launcher, haciendo
+que la configuración de razas de este mod prevalezca sobre todas las demás.
+
+Hice esto en parte porque estaba tiltado intentando conseguir que razas y
+animales nuevos de los mods fueran jugables, y me pasé 3 horas iniciando y
+reiniciando el juego intentando arreglar modelos que faltaban. Esto fue un
+proyecto paralelo de aquello, porque los conflictos los causaban 7 mods de
+razas jugables.
+
+Esto DEBERÍA ser compatible con todos los mods que editen o añadan razas.
+¿Que no? Avísame, esto fue un poco un experimento para ver si podía esquivar
+la priorización por orden de carga y resolver mi problema por separado de
+otros mods de razas jugables.
+
+[i]Si te encuentras con una raza que no se puede activar o desactivar, o un
+mod cuyas razas no aparecen bien, deja un comentario con el nombre del mod y
+le echaré un vistazo.[/i]
