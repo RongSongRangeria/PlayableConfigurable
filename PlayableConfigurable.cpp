@@ -919,6 +919,12 @@ void BuildUi()
     if (!gui) return;
     if (WN* had = gui->findWidget<WN>("PlayableConfigurableWindow", false)) { wnd = had; return; }
 
+    langMap.clear();
+    for (int i = 0; i < L_COUNT; i++) if (FontHas(LANG_TESTCP[i])) langMap.push_back(i);
+    bool avail = false;
+    for (size_t i = 0; i < langMap.size(); i++) if (langMap[i] == g_lang) avail = true;
+    if (!avail) g_lang = g_autoLang;
+
     launch = gui->createWidgetReal<B>(SK, 0.895f, 0.015f, 0.095f, 0.045f,
                                       AL::Default, "Window", "PlayableConfigurableLauncher");
     launch->setCaption(T(T_RACES_BTN));
@@ -954,12 +960,7 @@ void BuildUi()
     optL = c->createWidgetReal<CB>("Kenshi_ComboBox", 0.34f, 0.928f, 0.64f, 0.055f,
                                    AL::Default, "PCO2");
     optL->setComboModeDrop(true);
-    langMap.clear();
-    for (int i = 0; i < L_COUNT; i++)
-        if (FontHas(LANG_TESTCP[i])) { langMap.push_back(i); optL->addItem(LANG_FULL[i]); }
-    bool avail = false;
-    for (size_t i = 0; i < langMap.size(); i++) if (langMap[i] == g_lang) avail = true;
-    if (!avail) g_lang = g_autoLang;
+    for (size_t i = 0; i < langMap.size(); i++) optL->addItem(LANG_FULL[langMap[i]]);
     SyncLangCombo();
     optL->eventComboAccept += DG(OnLang);
 

@@ -130,18 +130,34 @@ same resource name). `LANG_TESTCP[L_COUNT]` holds one representative
 codepoint per language (a real character from that language's own name in
 `LANG_FULL`, e.g. `0x00E7` for French's `ç`) - each verified against the
 actual declared ranges in every `locale/<code>/gui/fonts/kenshi_fonts.xml`
-before shipping, not assumed. `BuildUi()` only calls `optL->addItem()` for
-languages that pass; `langMap[dropdown position] -> L_* index` tracks which
-survived, since skipped entries shift every later position. If the current
-`g_lang` (auto-detected or loaded from `@lang`) doesn't pass this session,
-it silently falls back to `g_autoLang` (Kenshi's own detected language,
-always guaranteed to pass) rather than keep displaying broken text - the
-saved `@lang` preference isn't erased, just not applied until it's
-renderable again (e.g. Kenshi's own language changes to match, or a mod
-that broadens font coverage gets enabled). This means the dropdown now
-answers all three "is this really unrenderable" questions the same way:
-Kenshi's own locale, a translation mod redefining the same font resource,
-or nothing at all - `FontHas` doesn't know or care which.
+before shipping, not assumed. `langMap[dropdown position] -> L_* index`
+tracks which languages survived the check, since skipped entries shift
+every later position; `optL->addItem()` only runs for entries already in
+`langMap`. If the current `g_lang` (auto-detected or loaded from `@lang`)
+doesn't pass this session, it silently falls back to `g_autoLang` (Kenshi's
+own detected language, always guaranteed to pass) rather than keep
+displaying broken text - the saved `@lang` preference isn't erased, just
+not applied until it's renderable again (e.g. Kenshi's own language
+changes to match, or a mod that broadens font coverage gets enabled).
+
+**Widget-creation-ordering bug found + fixed:** the very first real test of
+this fallback showed the top preset buttons ("ENABLE ALL" etc.) still
+displaying broken French while everything else correctly fell back to
+English. Cause: `BuildUi()` originally computed `langMap` and corrected
+`g_lang` *inline*, at the point where `optL` itself was created - but the
+preset buttons are built with `T(T_ENABLE_ALL)` etc. earlier in the same
+function, so they captured whatever `g_lang` was *before* the correction
+ran (still the unrenderable saved override) and never get rebuilt after
+(their captions are set once at creation, unlike the window
+title/categories/toggles which `Draw()` refreshes on every redraw). Fixed
+by moving the entire `langMap` computation and `g_lang` correction to the
+very top of `BuildUi()`, before any widget that calls `T()` is created -
+resolving the language *before* acting on it, rather than partway through.
+
+This means the dropdown now answers all three "is this really
+unrenderable" questions the same way: Kenshi's own locale, a translation
+mod redefining the same font resource, or nothing at all - `FontHas`
+doesn't know or care which.
 
 All 9 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/L_ES/
 L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT`), looked up via `T(id)` and formatted via
