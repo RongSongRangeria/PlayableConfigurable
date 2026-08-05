@@ -127,10 +127,21 @@ gets whatever font resource is *actually* registered right now, cast to
 list of Unicode ranges that font supports, whoever last registered it
 (Kenshi's own locale override, or a translation mod that redefines the
 same resource name). `LANG_TESTCP[L_COUNT]` holds one representative
-codepoint per language (a real character from that language's own name in
-`LANG_FULL`, e.g. `0x00E7` for French's `ç`) - each verified against the
-actual declared ranges in every `locale/<code>/gui/fonts/kenshi_fonts.xml`
-before shipping, not assumed. `langMap[dropdown position] -> L_* index`
+codepoint per language - each verified against the actual declared ranges
+in every `locale/<code>/gui/fonts/kenshi_fonts.xml` before shipping, not
+assumed. **Picking the test character from `LANG_FULL`'s native name isn't
+automatically safe: German's entry ("Deutsch") happens to be the one
+German word in the whole plugin with no umlaut, so the first version of
+this table tested `'D'` for German - plain ASCII, which passes under
+*any* font including the base English one with zero German glyphs. That
+meant German was always offered regardless of whether its actual special
+characters (used elsewhere, e.g. "Beschränkung") could render - confirmed
+by screenshot: the dropdown itself showed clean "German | Deutsch", but
+every other German string on screen had its ä/ü rendering as blank. Fixed
+by testing `0x00E4` (an actual `ä`) instead - the lesson is that a test
+character must come from something the language *actually* renders beyond
+its own picker entry, not just be non-ASCII-adjacent in name only.**
+`langMap[dropdown position] -> L_* index`
 tracks which languages survived the check, since skipped entries shift
 every later position; `optL->addItem()` only runs for entries already in
 `langMap`. If the current `g_lang` (auto-detected or loaded from `@lang`)

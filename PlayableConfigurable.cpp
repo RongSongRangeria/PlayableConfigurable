@@ -202,7 +202,7 @@ const char* const LANG_FULL[L_COUNT] = {
     "Portuguese | Portugu" "\xC3\xAA" "s"
 };
 const unsigned LANG_TESTCP[L_COUNT] = {
-    'E', 0x0420, 0x00F1, 0x4E2D, 'D', 0x00E7, 0x65E5, 0xD55C, 0x00EA
+    'E', 0x0420, 0x00F1, 0x4E2D, 0x00E4, 0x00E7, 0x65E5, 0xD55C, 0x00EA
 };
 int g_lang = L_EN, g_autoLang = L_EN;
 std::vector<int> langMap;
