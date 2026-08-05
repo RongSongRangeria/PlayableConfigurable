@@ -9,6 +9,11 @@ Makes races and subraces universally configurable and playable adapting to
 [b]your[/b] mod list, every time you launch. Add or remove race mods and this
 just keeps working (i hope): no need for conflicting patches and playable mods that cause conflict with your anim and model suites.
 
+[b]Languages:[/b] English, Russian, Spanish, Chinese (Simplified & Traditional),
+German, French, Japanese, Korean, Portuguese, Ukrainian, Polish. Follows your
+Kenshi client automatically, with a manual override button in the window -
+see Features below for details.
+
 [h1]Requirements[/h1]
 [b]Requires RE_Kenshi[/b] (v0.3.0+, tested against the current v0.3.4). Without
 it this mod does nothing.
@@ -50,6 +55,12 @@ say so in the comments and I'll fix it.[/i]
 [spoiler]
 [i](Машинный перевод, сгенерирован ИИ - не проверен носителем языка.
 Если что-то звучит не так, напишите в комментариях.)[/i]
+
+[b]Языки:[/b] Автоматически подстраивается под язык вашего Kenshi -
+поддерживается 12 языков (английский, русский, испанский, упрощённый и
+традиционный китайский, немецкий, французский, японский, корейский,
+португальский, украинский, польский), а кнопка Language внизу окна
+позволяет выбрать язык вручную.
 
 [h1]Требования[/h1]
 Требуется RE_Kenshi (v0.3.0+, проверено на текущей v0.3.4). Без него этот мод
@@ -93,6 +104,13 @@ say so in the comments and I'll fix it.[/i]
 [spoiler]
 [i](Traducción automática generada por IA - no revisada por un hablante
 nativo. Si algo suena mal, dilo en los comentarios.)[/i]
+
+[b]Idiomas:[/b] Sigue automáticamente el idioma de tu Kenshi -
+se admiten 12 idiomas (inglés, ruso, español, chino
+simplificado y tradicional, alemán, francés,
+japonés, coreano, portugués, ucraniano, polaco),
+con un botón Language en la parte inferior de la ventana para
+elegirlo a mano.
 
 [h1]Requisitos[/h1]
 Requiere RE_Kenshi (v0.3.0+, probado con la v0.3.4 actual). Sin él, este mod
@@ -138,6 +156,10 @@ en blanco.
 [spoiler]
 [i](机器翻译,由 AI 生成,未经母语者校对。如果哪里读起来不对,请在评论区
 告诉我。)[/i]
+
+[b]支持语言:[/b] 会自动跟随你 Kenshi 的语言设置 - 支持 12 种语言(英语、
+俄语、西班牙语、简体中文、繁体中文、德语、法语、日语、韩语、葡萄牙语、
+乌克兰语、波兰语),窗口底部有个 Language 按钮可以手动切换。
 
 [h1]环境需求[/h1]
 需要 RE_Kenshi(v0.3.0 及以上,已在当前 v0.3.4 上测试过)。没有它,本模组不会
