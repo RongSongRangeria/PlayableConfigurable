@@ -10,6 +10,7 @@
 #include <mygui/MyGUI_Gui.h>
 #include <mygui/MyGUI_Window.h>
 #include <mygui/MyGUI_Button.h>
+#include <mygui/MyGUI_ComboBox.h>
 #include <mygui/MyGUI_Delegate.h>
 #include <mygui/MyGUI_ScrollView.h>
 #include <mygui/MyGUI_TextBox.h>
@@ -43,6 +44,7 @@ typedef MyGUI::Widget W;
 typedef MyGUI::WidgetPtr WP;
 typedef MyGUI::Window WN;
 typedef MyGUI::Button B;
+typedef MyGUI::ComboBox CB;
 typedef MyGUI::ScrollView SV;
 typedef MyGUI::TextBox TXB;
 typedef MyGUI::Colour CL;
@@ -227,7 +229,8 @@ SV* sv = NULL;
 B* tip = NULL;
 B* optA = NULL;
 B* optF = NULL;
-B* optL = NULL;
+CB* optL = NULL;
+TXB* langLabel = NULL;
 std::vector<B*> poolE, poolR;
 std::vector<TXB*> poolD;
 
@@ -717,13 +720,8 @@ void Draw()
     sv->setCanvasSize(wide, y + 4);
     SetOpt(optA, g.animals, T(T_ANIMALS_ON), T(T_ANIMALS_OFF));
     SetOpt(optF, g.force, T(T_FORCE_ON), T(T_FORCE_OFF));
-    if (optL)
-    {
-        char lb[64];
-        sprintf_s(lb, "%s: %s", T(T_LANGUAGE), LANG_SHORT[g_lang]);
-        optL->setCaption(lb);
-        optL->setTextColour(C_ON);
-    }
+    if (langLabel) langLabel->setCaption(T(T_LANGUAGE));
+    if (optL) optL->setIndexSelected(g_lang);
 }
 
 void Commit()
@@ -786,9 +784,10 @@ void OnOpt(WP s)
     Commit();
 }
 
-void OnLang(WP s)
+void OnLang(CB* s, size_t index)
 {
-    g_lang = (g_lang + 1) % L_COUNT;
+    if (index >= (size_t)L_COUNT) return;
+    g_lang = (int)index;
     g.lang = LANG_CODE[g_lang];
     if (launch) launch->setCaption(T(T_RACES_BTN));
     SaveCfg();
@@ -918,7 +917,18 @@ void BuildUi()
 
     optA = Mk(c, 0.02f, 0.808f, 0.96f, 0.055f, "PCO0", NULL, OnOpt);
     optF = Mk(c, 0.02f, 0.868f, 0.96f, 0.055f, "PCO1", NULL, OnOpt);
-    optL = Mk(c, 0.02f, 0.928f, 0.96f, 0.055f, "PCO2", NULL, OnLang);
+
+    langLabel = c->createWidgetReal<TXB>("Kenshi_TextboxStandardText", 0.02f, 0.928f, 0.30f, 0.055f,
+                                          AL::Default, "PCLangLabel");
+    langLabel->setTextAlign(AL::Left | AL::VCenter);
+    langLabel->setTextColour(C_ON);
+
+    optL = c->createWidgetReal<CB>("Kenshi_ComboBox", 0.34f, 0.928f, 0.64f, 0.055f,
+                                   AL::Default, "PCO2");
+    optL->setComboModeDrop(true);
+    for (int i = 0; i < L_COUNT; i++) optL->addItem(LANG_SHORT[i]);
+    optL->setIndexSelected(g_lang);
+    optL->eventComboAccept += DG(OnLang);
     optL->setNeedToolTip(true);
     optL->eventToolTip += DG(OnLangTip);
 

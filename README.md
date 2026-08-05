@@ -79,10 +79,15 @@ Korean, and Portuguese (Brazil) - confirmed against FCS's own Translation
 Mode language list, which matches the `locale/` folders Kenshi ships.
 Detected once at startup by reading `language=` out of Kenshi's own
 `settings.cfg` (same file the game's own Options menu writes) - any other
-value falls back to English. A "Language: XX" row at the bottom of the
-window (`optL`, next to the animals/force-starts toggles) lets the player
-override this - clicking it cycles through all 9 and persists the choice
-to `@lang` in the config file, same as every other setting.
+value falls back to English. A real dropdown at the bottom of the window
+(`optL`, a `MyGUI::ComboBox` built from Kenshi's own `Kenshi_ComboBox`
+template - the same "reuse Kenshi's own skins" approach as `Kenshi_Button1`/
+`Kenshi_ScrollView` elsewhere in this file, `setComboModeDrop(true)` so it's
+list-only, not free-typed) lets the player override the auto-detected
+language, next to a static label (`langLabel`) showing the word
+"Language" translated. Picking an entry fires `eventComboAccept`
+(`OnLang(CB*, size_t)`) and persists the choice to `@lang` in the config
+file, same as every other setting.
 
 **Font caveat (why the override isn't risk-free):** Kenshi ships a
 Cyrillic/CJK-capable font override per locale (`locale/<code>/gui/fonts/
@@ -107,9 +112,24 @@ means adding one row to the table and one prefix check in `DetectLang()` -
 no other code changes. Terminology for shared concepts (e.g. "Race") was
 cross-checked against Kenshi's own shipped translation catalogs
 (`locale/<code>/LC_MESSAGES/main.po`) to stay consistent with the base
-game's vocabulary rather than inventing our own. Race/mod names themselves
-aren't touched; those come from `GameData` and are whatever the source mod
-(or its own translation) named them.
+game's vocabulary rather than inventing our own.
+
+**Race/group names are not translated by us, but likely already are by
+Kenshi itself.** `fcs.def` flags both `RACE` and `RACE_GROUP` as
+`TRANSLATE: ALL`, and Kenshi's shipped `locale/<code>/gamedata.po` catalogs
+have matching entries keyed by record ID (e.g. `msgid "Fishman"` ->
+`msgstr "Рыболюд"` in `ru_RU`). `e.name`/`c.name` are read straight from
+`GameData::name` (`Scan()`) - never inline during our hook, only later on
+window-open/commit, well after Kenshi's own data-loading pipeline has
+already run - so for vanilla/base-game races this should already reflect
+whatever Kenshi itself localized, for free. Not yet directly confirmed
+in-game (blocked by the launcher dialog issue below before reaching a race
+name in a non-English session) - inferred from the catalog evidence, not
+observed. Third-party mod races only translate if that mod's own author
+shipped a catalog for it - outside our control either way. Mod/file names
+shown in tooltips (e.g. `small_changes_otto.mod`) are literal identifiers
+and correctly stay untranslated; only the wrapping template text around
+them ("Mod: ", "Vanilla (", "Ungrouped: ") is ours.
 
 **Tooltip sizing bug found + fixed:** both tooltips (`OnTip`, `OnLangTip`)
 originally sized their box off `text.size()` - the *byte* length of a
@@ -224,6 +244,7 @@ the top of the file and listed here.
 | `WP` | `MyGUI::WidgetPtr` | widget pointer (event handler argument) |
 | `WN` | `MyGUI::Window` | the config window |
 | `B` | `MyGUI::Button` | every clickable row/button |
+| `CB` | `MyGUI::ComboBox` | the language dropdown - built from Kenshi's own `Kenshi_ComboBox` template |
 | `SV` | `MyGUI::ScrollView` | the scrolling list container |
 | `TXB` | `MyGUI::TextBox` | plain non-interactive text (tier dividers) - a different C++ type from `B`, so it needs its own pool |
 | `CL` | `MyGUI::Colour` | text colour |
