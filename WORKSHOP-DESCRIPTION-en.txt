@@ -1,0 +1,76 @@
+[Paste this into Steam's Workshop description field for the ENGLISH language
+slot, via the language dropdown in FCS/Steam's Workshop editor (each language
+gets its own file now, this is the English one). Steam Workshop supports this
+BBCode subset: b, i, u, strike, h1, list/*, url, spoiler. Not included here
+since Steam renders it separately: title (upload name), tags, preview image.]
+
+[h1]PlayableConfigurable[/h1]
+
+Makes races and subraces universally configurable and playable adapting to
+[b]your[/b] mod list, every time you launch. Add or remove race mods and this
+just keeps working (i hope): no need for conflicting patches and playable mods that cause conflict with your anim and model suites.
+
+[b]Languages:[/b] English, Русский, Español, 简体中文, Deutsch, Français,
+日本語, 한국어, Português, Українська, Polski, 繁體中文. Follows your Kenshi
+client automatically; a Language button in the window lets you switch
+manually.
+9 of these are Kenshi's own official languages (same list as FCS's
+Translation Mode) - Українська, Polski, and 繁體中文 are extra, included
+because some race/animal mods ship translations for them, but whether they
+render depends on some other loaded mod supplying that font.
+Language support follows your own Kenshi installation - enabling this mod
+won't give you a 简体中文 window if your Kenshi client itself is set to
+English.
+
+[h1]Requirements[/h1]
+[b]Requires RE_Kenshi[/b] (v0.3.0+, tested against the current v0.3.4). Without
+it this mod does nothing.
+[url=https://www.nexusmods.com/kenshi/mods/847]Get RE_Kenshi here[/url] - just grab the latest release. It was built in RE_Kenshi 3.4, but theoretically it may work in 3.0.
+
+[h1]How it works[/h1]
+[list]
+[*] Enable this mod and RE_Kenshi, then launch.
+[*] Click the RACES button on the main menu.
+[*] Toggle whole race groups or individual subraces. Presets: Enable All,
+Disable All, Default All (whatever your mods themselves mark playable),
+Vanilla Only (what base game kenshi has marked as playable).
+[*] Changes apply immediately - no restart needed to see them in a new game.
+[/list]
+
+[h1]Features[/h1]
+[list]
+[*] Rows are split into Race Groups, Modded Groups, and Uncategorized (races
+with no group, sorted by whichever mod added them), so a big modlist doesn't
+turn into a wall of checkboxes.
+[*] Hover any entry to see which mod it's from, or that it's from a vanilla package.
+[*] Allow animal races to be selected (i don't promise all of these work well... i'm looking at you ironsides).
+[*] Unlock per-start race restrictions (not recommended for all starts, it may genuinely break one or two of them).
+[*] Saved memory for a race whose mod isn't currently loaded are remembered and
+come back the moment that mod is re-enabled.
+[*] Follows your Kenshi's own language automatically (see Languages above),
+with a manual override button at the bottom of the window.
+[/list]
+
+[h1]Scope[/h1]
+Only character creation and the character editor are touched. NPCs, animals,
+factions, and existing saves behave exactly as vanilla/your other mods intend.
+
+There's a more detailed technical readme in the mod (license and source info
+included) if you want to utilize this utility, or the methodology i used for
+other patching efforts.
+
+It should work universally with any mods that exist, we preload this after
+reading all enabled mods from the launcher letting the mod settings of the
+races from this mod supersede all others.
+
+i made this partly because i was getting tilted trying to get new races and
+animals from mods playable, and spent 3 hours launching and relaunching my
+game trying to fix missing models. this was a side-project of that because
+the conflicts were caused by 7 playable races mods.
+
+This SHOULD be compatible with all mods that edit or add races. if not? let
+me know, this was a bit of an experiment to see if i could get around load
+order prioritization and solve my issue separately from other playables mods.
+
+[i]If you run into a race that won't toggle, or a mod whose races don't show
+up right, leave a comment with the mod name and I'll take a look.[/i]
