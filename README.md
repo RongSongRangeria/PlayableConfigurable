@@ -71,8 +71,11 @@ race whose visibility already matches, a fresh install SHOULD change nothing:
 ## Localization
 
 The plugin's own UI (RACES button, window title, tier dividers, preset
-buttons, tooltips, option toggles) supports English, Russian, Spanish, and
-Chinese. Detected once at startup by reading `language=` out of Kenshi's own
+buttons, tooltips, option toggles) supports all 9 languages Kenshi itself
+ships: English, Russian, Spanish, Chinese, German, French, Japanese,
+Korean, and Portuguese (Brazil) - confirmed against FCS's own Translation
+Mode language list, which matches the `locale/` folders Kenshi ships.
+Detected once at startup by reading `language=` out of Kenshi's own
 `settings.cfg` (same file the game's own Options menu writes) - any other
 value falls back to English. No restart-time cost, no bundled fonts: Kenshi
 ships its own Cyrillic/CJK-capable font overrides per locale
@@ -83,14 +86,26 @@ game itself is running in that language - nothing to bundle or hook on our
 side. Race/mod names themselves aren't touched; those come from `GameData`
 and are whatever the source mod (or its own translation) named them.
 
-All four languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/
-L_ES/L_ZH`), looked up via `T(id)` and formatted via `Fmt(id, arg)` for the
-handful of `%s`/`%d` templates. Adding a language means adding one row to
-the table and one prefix check in `DetectLang()` - no other code changes.
-Terminology for shared concepts (e.g. "Race") was cross-checked against
-Kenshi's own shipped translation catalogs
+All 9 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/L_ES/
+L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT`), looked up via `T(id)` and formatted via
+`Fmt(id, arg)` for the handful of `%s`/`%d` templates. Adding a language
+means adding one row to the table and one prefix check in `DetectLang()` -
+no other code changes. Terminology for shared concepts (e.g. "Race") was
+cross-checked against Kenshi's own shipped translation catalogs
 (`locale/<code>/LC_MESSAGES/main.po`) to stay consistent with the base
 game's vocabulary rather than inventing our own.
+
+**VS2010 `\x` escape gotcha:** non-ASCII UI text is written as `\xHH`
+byte-escaped UTF-8 (not raw literal characters) because this toolchain
+doesn't reliably treat a BOM-less source file as UTF-8. That escaping has
+its own trap: `\x` consumes *any* number of following hex-digit characters
+(`0-9a-fA-F`), so an escape immediately followed by a literal letter like
+`b`/`c`/`d`/`f` silently merges into one oversized escape and fails to
+compile (`C2022: too big for character`) - e.g. `"\xA9buts"` reads as
+`\xA9B` + `uts`, not `é` + `buts`. Every escape run must be its own
+adjacent string-literal segment (`"\xC3\xA9" "buts"`, which the compiler
+concatenates with zero runtime cost) so it's always immediately followed by
+a closing quote, never a literal letter.
 
 ## Build environment (one-time)
 
