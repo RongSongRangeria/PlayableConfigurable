@@ -376,7 +376,7 @@ the top of the file and listed here.
 | `WN` | `MyGUI::Window` | the config window |
 | `B` | `MyGUI::Button` | every clickable row/button, including the language cycle button |
 | `SV` | `MyGUI::ScrollView` | the scrolling list container |
-| `TXB` | `MyGUI::TextBox` | plain non-interactive text (tier dividers) - a different C++ type from `B`, so it needs its own pool |
+| `TXB` | `MyGUI::TextBox` | plain non-interactive text (tier dividers, `langLabel`) - a different C++ type from `B`, so it needs its own pool |
 | `CL` | `MyGUI::Colour` | text colour |
 | `AL` | `MyGUI::Align` | widget alignment |
 | `IC` | `MyGUI::IntCoord` | pixel rect |
@@ -405,7 +405,9 @@ the top of the file and listed here.
 | `OpenMemo` | which categories are expanded, keyed by group sid |
 | `Orig` | race sid -> its pristine visibility (`playable && limits && group`), captured the first time `Apply` sees it |
 | `wnd`, `launch`, `sv`, `tip` | window, RACES button, scroll view, tooltip |
-| `optA`, `optF` | the Animals / Forced-starts toggle buttons |
+| `optA`, `optF`, `optL` | the Animals / Forced-starts / Language toggle buttons |
+| `langLabel` | static text next to `optL` - normally the translated word "Language", swapped for a font-not-loaded warning when the selected language's script isn't rendering |
+| `g_lang` | index into `STR[][]`/`LANGS[]` for the UI's currently active language |
 | `poolE`, `poolR` | pooled expander and row buttons |
 | `poolD` | pooled divider text widgets (`Kenshi_TextboxStandardText` skin - a real Kenshi label skin, not a button) |
 
@@ -416,6 +418,7 @@ the top of the file and listed here.
 | `Cfg` | config file contents |
 | `Rows` | RAII wrapper around a `getDataOfType` query (frees the lektor buffer) |
 | `Race`, `Cat`, `Row` | one race / one display category (carries a `tier`: 0 Race Groups, 1 Modded Groups, 2 Uncategorized) / one visible list row (`kind`: 0 divider, 1 header, 2 race) |
+| `Lang` | one language's `{code, full, testcp}` - `LANGS[L_COUNT]` is the single source of truth `LangByCode`/`DetectLang`/`OnLang`/`SyncLangBtn`/`Draw` all read from |
 | `Get`, `GetB`, `GetF`, `SetB`, `SetF` | generic map read; bool/file field read and write on a record |
 | `Trim`, `Bool` | string trim, string->bool |
 | `Emit`, `Log`, `Err` | shared `TAG`-prefixed formatter; `Log`/`Err` are the variadic wrappers around `DebugLog`/`ErrorLog` |
@@ -488,9 +491,10 @@ Rows live in a `Kenshi_ScrollView` canvas (pixel coords), so the list scrolls
 instead of paging - a 169-member group is browsable in one place. Every toggle
 saves the config file AND re-applies to live GameData immediately.
 
-### `C_ON` / `C_OFF` / `C_MIX`
-Native-Kenshi palette: warm white for active, dim grey for inactive, and a middle
-tone for partially-enabled groups.
+### `C_ON` / `C_OFF` / `C_MIX` / `C_WARN`
+Native-Kenshi palette: warm white for active, dim grey for inactive, a middle
+tone for partially-enabled groups, and a warm red reserved for the
+font-not-loaded warning on `langLabel`.
 
 ### `Race::origin`
 Provenance label derived from the stringID suffix.
