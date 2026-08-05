@@ -56,7 +56,9 @@ animals, factions, combat and existing saves SHOULD be untouched.
 ## Config
 
 `PlayableConfigurable.config.txt`: lines `on|<stringId>|name|note`,
-`@allowAnimals`, `@animalLimitsFile`, `@clearForceRace`. Located at
+`@allowAnimals`, `@animalLimitsFile`, `@clearForceRace`, `@lang` (a
+`locale/`-style code like `ru_RU`; empty/unrecognized = auto-detect from
+Kenshi's own `settings.cfg` every boot). Located at
 `mods\PlayableConfigurable\` when that exists (manual/dev install), otherwise
 `%LOCALAPPDATA%\kenshi\` Steam-managed workshop folders,
 get revalidated on update. Races absent from the current launch shouldn't appear, 
@@ -77,14 +79,26 @@ Korean, and Portuguese (Brazil) - confirmed against FCS's own Translation
 Mode language list, which matches the `locale/` folders Kenshi ships.
 Detected once at startup by reading `language=` out of Kenshi's own
 `settings.cfg` (same file the game's own Options menu writes) - any other
-value falls back to English. No restart-time cost, no bundled fonts: Kenshi
-ships its own Cyrillic/CJK-capable font overrides per locale
-(`locale/<code>/gui/fonts/kenshi_fonts.xml`, swapping in fonts with the
-needed Unicode ranges for the standard `Kenshi_StandardFont_*` resources our
-widgets already use), so glyphs render correctly for free as long as the
-game itself is running in that language - nothing to bundle or hook on our
-side. Race/mod names themselves aren't touched; those come from `GameData`
-and are whatever the source mod (or its own translation) named them.
+value falls back to English. A "Language: XX" row at the bottom of the
+window (`optL`, next to the animals/force-starts toggles) lets the player
+override this - clicking it cycles through all 9 and persists the choice
+to `@lang` in the config file, same as every other setting.
+
+**Font caveat (why the override isn't risk-free):** Kenshi ships a
+Cyrillic/CJK-capable font override per locale (`locale/<code>/gui/fonts/
+kenshi_fonts.xml`, swapping in fonts with the needed Unicode `Codes` ranges
+for the standard `Kenshi_StandardFont_*` resources our widgets reuse), but
+**only one** such override is ever loaded - whichever one matches Kenshi's
+own `language=` setting at boot. `en_GB` is the only locale with *no*
+override at all (bare ASCII + narrow punctuation). So text renders
+correctly for exactly two cases: whatever language Kenshi itself is
+running in (that font is already loaded), and English (a subset of every
+font here). Overriding to anything else may show blank glyphs for that
+language's special characters, depending on what Kenshi's own client
+loaded - there's no way to fix this from a plugin without bundling and
+hooking in our own fonts, which was deliberately out of scope. `optL` has
+a tooltip (`T_LANG_HINT`) saying exactly this, in whatever language is
+currently active.
 
 All 9 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/L_ES/
 L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT`), looked up via `T(id)` and formatted via
@@ -93,7 +107,17 @@ means adding one row to the table and one prefix check in `DetectLang()` -
 no other code changes. Terminology for shared concepts (e.g. "Race") was
 cross-checked against Kenshi's own shipped translation catalogs
 (`locale/<code>/LC_MESSAGES/main.po`) to stay consistent with the base
-game's vocabulary rather than inventing our own.
+game's vocabulary rather than inventing our own. Race/mod names themselves
+aren't touched; those come from `GameData` and are whatever the source mod
+(or its own translation) named them.
+
+**Tooltip sizing bug found + fixed:** both tooltips (`OnTip`, `OnLangTip`)
+originally sized their box off `text.size()` - the *byte* length of a
+`std::string`. That's fine for ASCII but wildly wrong for UTF-8 text where
+one visual character can be 2-3 bytes (a Chinese/Korean sentence would
+massively over-size its tooltip box). Fixed with `Glyphs()`, which counts
+UTF-8 lead bytes (`(b & 0xC0) != 0x80`) instead of raw bytes - not
+pixel-perfect for wide CJK glyphs, but far closer than counting bytes.
 
 **VS2010 `\x` escape gotcha:** non-ASCII UI text is written as `\xHH`
 byte-escaped UTF-8 (not raw literal characters) because this toolchain
