@@ -890,9 +890,7 @@ void OnTip(WP s, const TT& info)
     if (D[i].kind == 1)
     {
         const Cat& c = K[D[i].cat];
-        char b[64];
-        sprintf_s(b, "  |  %d subrace(s)", (int)c.mem.size());
-        ShowTip(c.sid[0] == ':' ? (c.origin + b) : ("Race group - " + c.origin + b), info);
+        ShowTip(c.sid[0] == ':' ? c.origin : (S(T(T_RACE_GROUPS)) + ": " + c.origin), info);
     }
     else ShowTip(R[D[i].race].origin, info);
 }

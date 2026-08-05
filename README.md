@@ -204,6 +204,16 @@ shown in tooltips (e.g. `small_changes_otto.mod`) are literal identifiers
 and correctly stay untranslated; only the wrapping template text around
 them ("Mod: ", "Vanilla (", "Ungrouped: ") is ours.
 
+**Hardcoded-English tooltip found + fixed:** `OnTip`'s category tooltip built
+its text from two literal English strings (`"Race group - "` and `"  |  %d
+subrace(s)"`), missed entirely by the localization pass since it's assembled
+at hover-time rather than read from `STR[][]` like everything else. Found on
+a final full-file review, not by playing in another language. Fixed by
+reusing the already-translated `T_RACE_GROUPS` label as the prefix instead of
+a new string, and dropping the subrace count outright - it's redundant with
+the `(hits/total on)` count `Draw()` already puts on the row itself, so no
+new per-language translation was needed at all.
+
 **Tooltip sizing bug found + fixed:** both tooltips (`OnTip`, `OnLangTip`)
 originally sized their box off `text.size()` - the *byte* length of a
 `std::string`. That's fine for ASCII but wildly wrong for UTF-8 text where
@@ -264,6 +274,16 @@ exists, else `%LOCALAPPDATA%\kenshi\PlayableConfigurable.config.txt`.
 
 Requires RE_Kenshi with KenshiLib. `PreloadPlugins` (what this plugin uses)
 was introduced in v0.3.0. So theoretically it would work with V0.3.0, but it was built with V0.3.4
+
+**Before uploading, diff the live install's `.mod` against `dist/`'s.**
+Running the generator, or any test that touches the live
+`mods\PlayableConfigurable\` folder, silently overwrites the shipping
+0-record stub with a real generated one - happened again during this
+session's language work (a 1535-byte edit-type `.mod` sitting where the
+227-byte stub should've been, caught by comparing file sizes before this
+build's deploy). FCS uploads whatever is in the live install folder, not
+`dist/`, so a stale stub here ships broken/frozen data to every subscriber
+without any build error to catch it.
 
 ## Verified behavior
 
@@ -343,7 +363,6 @@ the top of the file and listed here.
 | `g_loaded` / `g_busy` | config-loaded flag / re-entrancy guard |
 | `R` | all races (`std::vector<Race>`), name-sorted |
 | `K` | display categories (`std::vector<Cat>`), tier-then-name sorted |
-| `TIER_NAMES` | the 3 divider labels, indexed by `Cat::tier` / a divider `Row::cat` |
 | `D` | flattened visible rows (`std::vector<Row>`) |
 | `OpenMemo` | which categories are expanded, keyed by group sid |
 | `Orig` | race sid -> its pristine visibility (`playable && limits && group`), captured the first time `Apply` sees it |

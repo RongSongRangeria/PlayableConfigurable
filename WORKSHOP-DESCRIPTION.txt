@@ -34,7 +34,12 @@ turn into a wall of checkboxes.
 [*] Unlock per-start race restrictions.
 [*] Saved memory for a race whose mod isn't currently loaded are remembered and
 come back the moment that mod is re-enabled.
-[*] Experimental Language Support, i hope it works.
+[*] Follows your Kenshi's own language automatically - 12 languages supported
+(English, Russian, Spanish, Chinese Simplified & Traditional, German, French,
+Japanese, Korean, Portuguese, Ukrainian, Polish), with a Language button at
+the bottom of the window if you want to override it manually. Only your
+Kenshi's language and English are guaranteed to render correctly; the others
+depend on what fonts are loaded and may show blanks instead of text.
 [/list]
 
 [i]The Russian, Spanish, and Chinese sections below were machine-translated
@@ -75,7 +80,12 @@ say so in the comments and I'll fix it.[/i]
 [*] Снять ограничения рас для конкретных стартов.
 [*] Настройки расы, чей мод сейчас не загружен, сохраняются и возвращаются,
 как только мод снова включат.
-[*] Экспериментальная поддержка языков, надеюсь, что она работает.
+[*] Автоматически подстраивается под язык вашего Kenshi - поддерживается 12
+языков (английский, русский, испанский, упрощённый и традиционный китайский,
+немецкий, французский, японский, корейский, португальский, украинский,
+польский), а кнопка Language внизу окна позволяет выбрать язык вручную.
+Надёжно отображаются только язык вашей игры Kenshi и английский; остальные
+могут показывать пропуски.
 [/list]
 [/spoiler]
 
@@ -115,7 +125,12 @@ bien... te miro a ti, ironsides).
 [*] Desbloquea las restricciones de raza por inicio.
 [*] Los ajustes de una raza cuyo mod no está cargado se recuerdan y vuelven
 en cuanto ese mod se reactiva.
-[*] Soporte de idiomas experimental, espero que funcione.
+[*] Sigue automáticamente el idioma de tu Kenshi - se admiten 12 idiomas
+(inglés, ruso, español, chino simplificado y tradicional, alemán, francés,
+japonés, coreano, portugués, ucraniano, polaco), con un botón Language en la
+parte inferior de la ventana para elegirlo a mano. Solo el idioma de tu
+Kenshi y el inglés se muestran de forma fiable; otros pueden mostrar espacios
+en blanco.
 [/list]
 [/spoiler]
 
@@ -150,7 +165,10 @@ en cuanto ese mod se reactiva.
 [*] 解除各开局对种族的限制。
 [*] 某个种族所属的模组当前未加载时,其设置会被保留,该模组重新启用后会自
 动恢复。
-[*] 实验性语言支持,希望它能正常工作。
+[*] 会自动跟随你 Kenshi 的语言设置 - 支持 12 种语言(英语、俄语、西班牙语、
+简体中文、繁体中文、德语、法语、日语、韩语、葡萄牙语、乌克兰语、波兰语),
+窗口底部有个 Language 按钮可以手动切换。只有你 Kenshi 的语言和英语能可靠显
+示;其他语言可能出现空白字符。
 [/list]
 [/spoiler]
 
