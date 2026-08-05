@@ -88,7 +88,7 @@ value falls back to English. A button at the bottom of the window (`optL`,
 next to a static label `langLabel` showing the word "Language" translated)
 lets the player override the auto-detected language, cycling to the next
 available one on each click and persisting the choice to `@lang` in the
-config file, same as every other setting. Its caption is `LANG_FULL[g_lang]`
+config file, same as every other setting. Its caption is `LANGS[g_lang].full`
 - a fixed, *not* per-language-translated "English name | native name" pair
 (`"Russian | Русский"`, `"Japanese | 日本語"`, etc.) so whichever one is
 showing stays identifiable regardless of what language is currently active.
@@ -127,10 +127,10 @@ gets whatever font resource is *actually* registered right now, cast to
 `ResourceTrueTypeFont` to call `getCodePointRanges()` - the real, current
 list of Unicode ranges that font supports, whoever last registered it
 (Kenshi's own locale override, or a translation mod that redefines the
-same resource name). `LANG_TESTCP[L_COUNT]` holds one representative
+same resource name). `LANGS[L_COUNT].testcp` holds one representative
 codepoint per language - each verified against the actual declared ranges
 in every `locale/<code>/gui/fonts/kenshi_fonts.xml` before shipping, not
-assumed. **Picking the test character from `LANG_FULL`'s native name isn't
+assumed. **Picking the test character from `LANGS[].full`'s native name isn't
 automatically safe: German's entry ("Deutsch") happens to be the one
 German word in the whole plugin with no umlaut, so the first version of
 this table tested `'D'` for German - plain ASCII, which passes under
@@ -173,9 +173,12 @@ doesn't know or care which.
 All 12 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/
 L_ES/L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT/L_UK/L_PL/L_ZHTW`), looked up via `T(id)`
 and formatted via `Fmt(id, arg)` for the handful of `%s`/`%d` templates.
-Adding a language means adding one row to the table plus one `LANG_CODE`/
-`LANG_FULL`/`LANG_TESTCP` entry - no other code changes; `DetectLang()` and
-the `@lang` config loader both call the same `LangByCode()` rather than
+Adding a language means adding one row to the table plus one `LANGS[]`
+entry (`{code, full, testcp}` - consolidated from three separate
+parallel arrays that had to stay in sync by index into a single `Lang`
+struct array, closing off a class of bug where adding a language updates
+two of the three and silently desyncs the third) - no other code changes;
+`DetectLang()` and the `@lang` config loader both call the same `LangByCode()` rather than
 each hand-rolling their own prefix matching. `LangByCode()` tries an exact
 match on the full code first, only falling back to a 3-character prefix
 match (`"ru_"`, `"de_"`, etc., tolerating whatever regional suffix Kenshi
@@ -203,6 +206,30 @@ shipped a catalog for it - outside our control either way. Mod/file names
 shown in tooltips (e.g. `small_changes_otto.mod`) are literal identifiers
 and correctly stay untranslated; only the wrapping template text around
 them ("Mod: ", "Vanilla (", "Ungrouped: ") is ours.
+
+**Fixed-buffer overflow risk found + fixed (2026-08-05, robustness pass
+before Workshop upload):** `Draw()`'s category row built `T_CAT_COUNT`
+("%s   (%d/%d on)") into a 192-byte stack buffer via `sprintf_s`, where
+`%s` was `c.name` - a `RACE_GROUP` display name that can come straight
+from a third-party mod, i.e. unbounded, author-controlled text. Unlike
+`snprintf`, MSVC's `_s` family doesn't quietly truncate on overflow - it
+invokes the CRT's invalid-parameter handler, which by default terminates
+the process. Risk is real but not uniform across languages: a mod author
+writing category names in Chinese/Japanese/Korean spends 3 UTF-8 bytes per
+character versus 1 for Latin script, so a moderately long CJK category
+name reaches the 192-byte ceiling far sooner than an equivalent-looking
+English one - the exact opposite of "works regardless of language."
+Fixed by moving `%s` out of the template entirely: `T_CAT_COUNT` is now
+just the numeric suffix (`"   (%d/%d on)"`, mechanically stripped of its
+leading `%s` in all 12 languages, no translated words touched), built
+into the small fixed buffer, then concatenated onto `c.name` as a
+`std::string` - exactly how the race-row branch two lines below already
+handled its own unbounded `e.name`. `Fmt()`'s buffer was also bumped
+512 -> 2048 bytes as cheap insurance against the same class of risk: its
+`%s` argument is a mod's origin filename, and NTFS allows up to 255
+characters per path component - up to ~765 UTF-8 bytes for an all-CJK
+filename, which could exceed the old 512-byte buffer on a sufficiently
+long non-Latin mod filename.
 
 **Hardcoded-English tooltip found + fixed:** `OnTip`'s category tooltip built
 its text from two literal English strings (`"Race group - "` and `"  |  %d
