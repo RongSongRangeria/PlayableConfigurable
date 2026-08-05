@@ -64,7 +64,7 @@ typedef MyGUI::ToolTipInfo TT;
     if ((info).type != TT::Show) return;
 
 enum { ROW_H = 34, EXP_W = 38, INDENT = 30 };
-const CL C_ON(0.95f, 0.93f, 0.86f), C_OFF(0.45f, 0.44f, 0.40f), C_MIX(0.72f, 0.70f, 0.64f);
+const CL C_ON(0.95f, 0.93f, 0.86f), C_OFF(0.45f, 0.44f, 0.40f), C_MIX(0.72f, 0.70f, 0.64f), C_WARN(0.85f, 0.35f, 0.25f);
 const char* const VANILLA[] = {
     "gamedata.quack", "gamedata.base", "dialogue.mod", "newwworld.mod", "rebirth.mod",
     "stick_people.mod", "chareditor.mod", "small_changes_otto.mod", "newwworld plus.mod"
@@ -235,8 +235,7 @@ const Lang LANGS[L_COUNT] = {
     { "pl_PL", "Polish | Polski", 0x0142 },
     { "zh_TW", "Chinese (Traditional) | " "\xE7\xB9\x81\xE9\xAB\x94\xE4\xB8\xAD\xE6\x96\x87", 0x8A9E }
 };
-int g_lang = L_EN, g_autoLang = L_EN;
-std::vector<int> langMap;
+int g_lang = L_EN;
 const char* T(int id) { return STR[g_lang][id]; }
 S Fmt(int id, const S& a) { char b[2048]; sprintf_s(b, T(id), a.c_str()); return S(b); }
 int LangByCode(const S& code)
@@ -780,7 +779,12 @@ void Draw()
     sv->setCanvasSize(wide, y + 4);
     SetOpt(optA, g.animals, T(T_ANIMALS_ON), T(T_ANIMALS_OFF));
     SetOpt(optF, g.force, T(T_FORCE_ON), T(T_FORCE_OFF));
-    if (langLabel) langLabel->setCaption(T(T_LANGUAGE));
+    if (langLabel)
+    {
+        bool warn = !FontHas(LANGS[g_lang].testcp);
+        langLabel->setCaption(warn ? "Font not loaded - may show blanks" : T(T_LANGUAGE));
+        langLabel->setTextColour(warn ? C_WARN : C_ON);
+    }
     SyncLangBtn();
 }
 
@@ -846,10 +850,7 @@ void OnOpt(WP s)
 
 void OnLang(WP s)
 {
-    if (langMap.empty()) return;
-    size_t cur = 0;
-    for (size_t i = 0; i < langMap.size(); i++) if (langMap[i] == g_lang) { cur = i; break; }
-    g_lang = langMap[(cur + 1) % langMap.size()];
+    g_lang = (g_lang + 1) % L_COUNT;
     g.lang = LANGS[g_lang].code;
     if (launch) launch->setCaption(T(T_RACES_BTN));
     SaveCfg();
@@ -953,12 +954,6 @@ void BuildUi()
     if (!gui) return;
     if (WN* had = gui->findWidget<WN>("PlayableConfigurableWindow", false)) { wnd = had; return; }
 
-    langMap.clear();
-    for (int i = 0; i < L_COUNT; i++) if (FontHas(LANGS[i].testcp)) langMap.push_back(i);
-    bool avail = false;
-    for (size_t i = 0; i < langMap.size(); i++) if (langMap[i] == g_lang) avail = true;
-    if (!avail) g_lang = g_autoLang;
-
     launch = gui->createWidgetReal<B>(SK, 0.895f, 0.015f, 0.095f, 0.045f,
                                       AL::Default, "Window", "PlayableConfigurableLauncher");
     launch->setCaption(T(T_RACES_BTN));
@@ -1021,7 +1016,7 @@ void TitleShow_hook(TS* self, bool on)
 __declspec(dllexport) void startPlugin()
 {
     Log("plugin starting");
-    g_lang = g_autoLang = DetectLang();
+    g_lang = DetectLang();
     Log("language: %s", LANGS[g_lang].code);
     if (!ModEnabled())
     {

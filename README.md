@@ -142,33 +142,44 @@ but every other German string on screen had its ä/ü rendering as blank.
 Fixed by testing `0x00E4` (an actual `ä`) instead - the lesson is that a
 test character must come from something the language *actually* renders
 beyond its own picker entry, not just be non-ASCII-adjacent in name only.**
-`langMap` holds the `L_*` indices that survived the check - `OnLang` cycles
-through it (not `0..L_COUNT-1` directly) so a skipped language is simply
-never landed on. If the current `g_lang` (auto-detected or loaded from `@lang`)
-doesn't pass this session, it silently falls back to `g_autoLang` (Kenshi's
-own detected language, always guaranteed to pass) rather than keep
-displaying broken text - the saved `@lang` preference isn't erased, just
-not applied until it's renderable again (e.g. Kenshi's own language
-changes to match, or a mod that broadens font coverage gets enabled).
+**Gated cycling tried and reverted (2026-08-05, same day): `langMap` held
+only the `L_*` indices that passed `FontHas`, and `OnLang` cycled through
+that filtered list instead of `0..L_COUNT-1` directly** - meant to stop the
+button from ever landing on a language it already knew would render blank.
+This backfired on exactly the install it was supposed to protect: on a
+plain `en_GB` install (no locale font override loaded at all, per the
+caveat above), `FontHas` only passes for English's own ASCII test
+character, so `langMap` held a single entry and the button did nothing -
+the user couldn't cycle to *any* other language just to look at it, even
+though this project's whole design already assumed and accepted the
+font-mismatch risk (the very first version of this feature was a "full
+cycle + warning" design, chosen explicitly over restricting to only the
+2 guaranteed-safe options). A now-superseded ordering bug lived here too:
+`BuildUi()` computed `langMap` inline partway through the function, so the
+top preset buttons (built earlier in the same call, captions set once at
+creation) kept whatever `g_lang` was *before* the correction ran, while
+everything `Draw()` refreshes every redraw correctly showed the corrected
+language - fixed at the time by moving the computation to the very top of
+`BuildUi()`, but the whole mechanism it was fixing has since been removed.
 
-**Widget-creation-ordering bug found + fixed:** the very first real test of
-this fallback showed the top preset buttons ("ENABLE ALL" etc.) still
-displaying broken French while everything else correctly fell back to
-English. Cause: `BuildUi()` originally computed `langMap` and corrected
-`g_lang` *inline*, further down the function - but the preset buttons are
-built with `T(T_ENABLE_ALL)` etc. earlier in the same call, so they
-captured whatever `g_lang` was *before* the correction ran (still the
-unrenderable saved override) and never get rebuilt after (their captions
-are set once at creation, unlike the window title/categories/toggles which
-`Draw()` refreshes on every redraw). Fixed by moving the entire `langMap`
-computation and `g_lang` correction to the very top of `BuildUi()`, before
-any widget that calls `T()` is created - resolving the language *before*
-acting on it, rather than partway through.
-
-This means the language button now answers all three "is this really
-unrenderable" questions the same way: Kenshi's own locale, a translation
-mod redefining the same font resource, or nothing at all - `FontHas`
-doesn't know or care which.
+**Reverted to the original design: `OnLang` cycles `0..L_COUNT-1`
+unconditionally, with no font gate at all.** `FontHas`/`LANGS[].testcp`
+are still used, but now only to decide whether to show a warning, not
+whether a language can be selected. `Draw()` checks
+`!FontHas(LANGS[g_lang].testcp)` for the *currently selected* language on
+every redraw; if it fails, `langLabel` (normally the translated word
+"Language") is replaced with a fixed, deliberately **untranslated** English
+caption ("Font not loaded - may show blanks") in a new warning colour
+(`C_WARN`, warm red) instead of `C_ON`. Untranslated on purpose: if the
+warning is showing, it's because the *selected* language's own script
+isn't rendering right now - translating the warning into that same
+language risks the warning itself being unreadable. English is the one
+language `FontHas` can never fail for (ASCII is a strict subset of every
+font this game ships, including the bare base one), so it's the only safe
+choice for a message that has to stay legible exactly when everything
+else might not be. `langMap` and the `g_autoLang` fallback-language global
+it fed were removed entirely - dead code once cycling stopped needing a
+filtered list to walk.
 
 All 12 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/
 L_ES/L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT/L_UK/L_PL/L_ZHTW`), looked up via `T(id)`
