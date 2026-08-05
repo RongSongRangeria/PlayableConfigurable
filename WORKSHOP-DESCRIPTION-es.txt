@@ -8,9 +8,9 @@ separado: título (nombre de subida), etiquetas, imagen de vista previa.]
 
 Hace que las razas y subrazas sean configurables y jugables de forma
 universal, adaptándose a [b]tu[/b] lista de mods cada vez que inicias el
-juego. Añade o quita mods de razas y esto sigue funcionando (eso espero): no
-hace falta parches que generen conflictos, ni mods jugables que choquen con
-tus conjuntos de animaciones y modelos.
+juego. Añade o quita mods de razas y esto sigue funcionando (eso espero,
+toquem fusta): no hace falta parches que generen conflictos, ni mods
+jugables que choquen con tus conjuntos de animaciones y modelos.
 
 [i]Esta descripción se ha traducido automáticamente con IA y todavía no la
 ha revisado un hablante nativo. Si algo suena raro, está mal traducido o
@@ -33,7 +33,7 @@ depende de que algún otro mod cargado aporte esa fuente.
 instalación de Kenshi - activar este mod no te va a dar una ventana en
 简体中文 si tu cliente de Kenshi está configurado en inglés.
 
-[h1]Requisitos[/h1]
+[h1]Requisits[/h1]
 [b]Requiere RE_Kenshi[/b] (v0.3.0+, probado con la versión actual v0.3.4). Sin
 él, este mod no hace nada.
 [url=https://www.nexusmods.com/kenshi/mods/847]Consigue RE_Kenshi aquí[/url] - solo tienes que descargar la última versión. Se creó con RE_Kenshi 3.4, pero en teoría podría funcionar con la 3.0.
@@ -58,9 +58,10 @@ de mods grande no se convierta en una pared de casillas.
 [*] Pasa el cursor por encima de cualquier entrada para ver de qué mod viene,
 o si viene de un paquete vainilla.
 [*] Permite seleccionar razas de animales (no prometo que todas funcionen
-bien... te estoy mirando a ti, ironsides).
-[*] Desbloquea las restricciones de raza por tipo de inicio (no recomendado
-para todos los inicios, puede llegar a romper de verdad alguno que otro).
+bien... ostres, te estoy mirando a ti, ironsides).
+[*] Desbloquea las restricciones de raza por tipo de inicio (vés amb
+compte, no recomendado para todos los inicios, puede llegar a romper de
+verdad alguno que otro).
 [*] La configuración guardada de una raza cuyo mod no está cargado en ese
 momento se recuerda y vuelve en cuanto ese mod se reactiva.
 [*] Sigue automáticamente el idioma de tu Kenshi (ver Idiomas más arriba),
@@ -80,8 +81,9 @@ Debería funcionar de forma universal con cualquier mod que exista; esto se
 precarga después de leer todos los mods activados desde el launcher, haciendo
 que la configuración de razas de este mod prevalezca sobre todas las demás.
 
-Hice esto en parte porque estaba tiltado intentando conseguir que razas y
-animales nuevos de los mods fueran jugables, y me pasé 3 horas iniciando y
+Hice esto en parte porque estaba tiltado (collons, vaya si lo estaba)
+intentando conseguir que razas y animales nuevos de los mods fueran
+jugables, y me pasé 3 horas iniciando y
 reiniciando el juego intentando arreglar modelos que faltaban. Esto fue un
 proyecto paralelo de aquello, porque los conflictos los causaban 7 mods de
 razas jugables.
@@ -91,10 +93,10 @@ Esto DEBERÍA ser compatible con todos los mods que editen o añadan razas.
 la priorización por orden de carga y resolver mi problema por separado de
 otros mods de razas jugables.
 
-Si has leído hasta aquí, dale a "me gusta", me hace sentir un poquito mejor
-el día.
+Vinga, si has leído hasta aquí, dale a "me gusta", que así el día me sabe
+una mica millor.
 
 [i]Si te encuentras con una raza que no se puede activar o desactivar, un
 mod cuyas razas no aparecen bien, o cualquier otro problema, deja un
 comentario con el nombre del mod y le echaré un vistazo. Eso sí, si te
-faltan modelos, animaciones, etc., este mod no toca eso.[/i]
+faltan modelos, animaciones, etc., este mod no toca eso. Gràcies![/i]

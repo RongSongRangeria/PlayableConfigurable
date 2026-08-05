@@ -1,0 +1,20 @@
+[Paste this into Steam's Workshop description field for the FINNISH
+language slot, via the language dropdown in FCS/Steam's Workshop editor.
+No dedicated translation exists for this language yet - this is a short
+placeholder instead of a full description.]
+
+[h1]Universally Playable Races & Animals[/h1]
+
+[i]This page doesn't have a dedicated description in this language yet.[/i]
+
+This mod's in-game menu supports 12 languages: English, Русский, Español,
+简体中文, Deutsch, Français, 日本語, 한국어, Português, Українська, Polski,
+and 繁體中文. 9 of these are Kenshi's own official languages; Українська,
+Polski, and 繁體中文 are "best effort" extras that only render correctly if
+some other loaded mod happens to supply the right font.
+
+All of this mod's Workshop descriptions (this one included) are
+AI-generated or AI-translated, not written by a native speaker.
+
+Want a full description in this language? Leave a comment requesting it
+and I'll add one.
