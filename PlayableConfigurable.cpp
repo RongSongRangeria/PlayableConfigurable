@@ -10,7 +10,6 @@
 #include <mygui/MyGUI_Gui.h>
 #include <mygui/MyGUI_Window.h>
 #include <mygui/MyGUI_Button.h>
-#include <mygui/MyGUI_ComboBox.h>
 #include <mygui/MyGUI_Delegate.h>
 #include <mygui/MyGUI_FontManager.h>
 #include <mygui/MyGUI_ResourceTrueTypeFont.h>
@@ -46,7 +45,6 @@ typedef MyGUI::Widget W;
 typedef MyGUI::WidgetPtr WP;
 typedef MyGUI::Window WN;
 typedef MyGUI::Button B;
-typedef MyGUI::ComboBox CB;
 typedef MyGUI::ScrollView SV;
 typedef MyGUI::TextBox TXB;
 typedef MyGUI::Colour CL;
@@ -257,7 +255,7 @@ SV* sv = NULL;
 B* tip = NULL;
 B* optA = NULL;
 B* optF = NULL;
-CB* optL = NULL;
+B* optL = NULL;
 TXB* langLabel = NULL;
 std::vector<B*> poolE, poolR;
 std::vector<TXB*> poolD;
@@ -266,7 +264,7 @@ void Draw();
 void Commit();
 void Ensure(size_t needed);
 void Rebuild();
-void SyncLangCombo();
+void SyncLangBtn();
 
 void Emit(void (*fn)(const std::string&), const char* fmt, va_list a)
 {
@@ -745,7 +743,7 @@ void Draw()
     SetOpt(optA, g.animals, T(T_ANIMALS_ON), T(T_ANIMALS_OFF));
     SetOpt(optF, g.force, T(T_FORCE_ON), T(T_FORCE_OFF));
     if (langLabel) langLabel->setCaption(T(T_LANGUAGE));
-    SyncLangCombo();
+    SyncLangBtn();
 }
 
 void Commit()
@@ -808,10 +806,12 @@ void OnOpt(WP s)
     Commit();
 }
 
-void OnLang(CB* s, size_t index)
+void OnLang(WP s)
 {
-    if (index >= langMap.size()) return;
-    g_lang = langMap[index];
+    if (langMap.empty()) return;
+    size_t cur = 0;
+    for (size_t i = 0; i < langMap.size(); i++) if (langMap[i] == g_lang) { cur = i; break; }
+    g_lang = langMap[(cur + 1) % langMap.size()];
     g.lang = LANG_CODE[g_lang];
     if (launch) launch->setCaption(T(T_RACES_BTN));
     SaveCfg();
@@ -820,11 +820,9 @@ void OnLang(CB* s, size_t index)
     Draw();
 }
 
-void SyncLangCombo()
+void SyncLangBtn()
 {
-    if (!optL) return;
-    for (size_t i = 0; i < langMap.size(); i++)
-        if (langMap[i] == g_lang) { optL->setIndexSelected(i); return; }
+    if (optL) optL->setCaption(LANG_FULL[g_lang]);
 }
 
 void ShowTip(const S& text, const TT& info)
@@ -957,12 +955,8 @@ void BuildUi()
     langLabel->setNeedToolTip(true);
     langLabel->eventToolTip += DG(OnLangTip);
 
-    optL = c->createWidgetReal<CB>("Kenshi_ComboBox", 0.34f, 0.928f, 0.64f, 0.055f,
-                                   AL::Default, "PCO2");
-    optL->setComboModeDrop(true);
-    for (size_t i = 0; i < langMap.size(); i++) optL->addItem(LANG_FULL[langMap[i]]);
-    SyncLangCombo();
-    optL->eventComboAccept += DG(OnLang);
+    optL = Mk(c, 0.34f, 0.928f, 0.64f, 0.055f, "PCO2", NULL, OnLang);
+    SyncLangBtn();
 
     tip = gui->createWidget<B>(SK, IC(0, 0, 300, 34), AL::Default, "ToolTip", "PCToolTip");
     tip->setTextColour(C_ON);

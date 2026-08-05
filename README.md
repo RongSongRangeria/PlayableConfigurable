@@ -79,37 +79,34 @@ Korean, and Portuguese (Brazil) - confirmed against FCS's own Translation
 Mode language list, which matches the `locale/` folders Kenshi ships.
 Detected once at startup by reading `language=` out of Kenshi's own
 `settings.cfg` (same file the game's own Options menu writes) - any other
-value falls back to English. A real dropdown at the bottom of the window
-(`optL`, a `MyGUI::ComboBox` built from Kenshi's own `Kenshi_ComboBox`
-template - the same "reuse Kenshi's own skins" approach as `Kenshi_Button1`/
-`Kenshi_ScrollView` elsewhere in this file, `setComboModeDrop(true)` so it's
-list-only, not free-typed) lets the player override the auto-detected
-language, next to a static label (`langLabel`) showing the word
-"Language" translated. Items are `LANG_FULL[L_COUNT]` - a fixed, *not*
-per-language-translated "English name | native name" pair (`"Russian | 
-Русский"`, `"Japanese | 日本語"`, etc.) so every entry stays identifiable
-regardless of whatever language is currently active - the whole point of a
-language picker is being readable before you've picked the right one.
-Picking an entry fires `eventComboAccept` (`OnLang(CB*, size_t)`) and
-persists the choice to `@lang` in the config file, same as every other
-setting.
+value falls back to English. A button at the bottom of the window (`optL`,
+next to a static label `langLabel` showing the word "Language" translated)
+lets the player override the auto-detected language, cycling to the next
+available one on each click and persisting the choice to `@lang` in the
+config file, same as every other setting. Its caption is `LANG_FULL[g_lang]`
+- a fixed, *not* per-language-translated "English name | native name" pair
+(`"Russian | Русский"`, `"Japanese | 日本語"`, etc.) so whichever one is
+showing stays identifiable regardless of what language is currently active.
 
-**Popup-list corruption bug found + fixed:** the hint tooltip was
-originally attached to `optL` itself (the combo). First real screenshot
-after shipping the ComboBox showed the popup list rendering as visual
-noise even though the closed combo displayed its selection cleanly -
-strong sign the two were fighting over the same space rather than a font
-problem (the closed state proved the font itself was fine). Root cause:
-Kenshi's `Kenshi_ComboBox` template puts its popup `ListBox` on layer
-`"Popup"`, while our tooltip widget is on layer `"ToolTip"` - if `ToolTip`
-renders above `Popup` (plausible; tooltips are usually top-most), hovering
-the combo to open its list would also fire our tooltip, drawing a large
-caveat-text box on top of the list it was covering. Fixed by moving
-`setNeedToolTip`/`eventToolTip` off `optL` and onto the static `langLabel`
-instead - same information, but the label never opens a competing popup so
-there's nothing for the tooltip to collide with.
+**Tried a real dropdown first (`MyGUI::ComboBox`, built from Kenshi's own
+`Kenshi_ComboBox` template), reverted after an unresolved rendering bug.**
+The closed combo always displayed its selection cleanly, but the popup
+list rendered as visual noise every time it opened - confirmed with a
+screenshot showing corruption even for a single guaranteed-safe
+`"English | English"` entry (proven via diagnostic logging that the font
+looked up 9 test codepoints correctly - `FontHas` itself was never the
+problem). Kenshi's own `.layout` files instantiate `Kenshi_ComboBox` the
+same simple way this code did (`<Widget type="ComboBox" skin=
+"Kenshi_ComboBox" .../>`, no manual reconstruction of its internal
+Button/Client/List structure), so the creation method wasn't the issue
+either - something about how the popup `ListBox`'s items actually get
+skinned/fonted at runtime didn't work right for this specific composite
+widget, and diagnosing further needed live interaction this session
+couldn't do. Reverted to a plain `Kenshi_Button1` cycle button - the same
+skin every other interactive element in this file already uses
+successfully, with zero exceptions.
 
-**Font caveat, and how the dropdown is gated against it:** Kenshi ships a
+**Font caveat, and how the button is gated against it:** Kenshi ships a
 Cyrillic/CJK-capable font override per locale (`locale/<code>/gui/fonts/
 kenshi_fonts.xml`, swapping in fonts with the needed Unicode `Codes` ranges
 for the standard `Kenshi_StandardFont_*` resources our widgets reuse), but
@@ -117,8 +114,7 @@ for the standard `Kenshi_StandardFont_*` resources our widgets reuse), but
 own `language=` setting at boot. `en_GB` is the only locale with *no*
 override at all (bare ASCII + narrow punctuation). First real test of the
 override (picking French while Kenshi itself stayed in English) showed
-exactly this: every accented character rendered as a blank space, both in
-our window and in the combo's own popup list.
+exactly this: every accented character rendered as a blank space.
 
 Rather than just document the risk, `FontHas(cp)` checks it directly:
 `MyGUI::FontManager::getInstance().getByName("Kenshi_StandardFont_Medium")`
@@ -136,15 +132,14 @@ this table tested `'D'` for German - plain ASCII, which passes under
 *any* font including the base English one with zero German glyphs. That
 meant German was always offered regardless of whether its actual special
 characters (used elsewhere, e.g. "Beschränkung") could render - confirmed
-by screenshot: the dropdown itself showed clean "German | Deutsch", but
-every other German string on screen had its ä/ü rendering as blank. Fixed
-by testing `0x00E4` (an actual `ä`) instead - the lesson is that a test
-character must come from something the language *actually* renders beyond
-its own picker entry, not just be non-ASCII-adjacent in name only.**
-`langMap[dropdown position] -> L_* index`
-tracks which languages survived the check, since skipped entries shift
-every later position; `optL->addItem()` only runs for entries already in
-`langMap`. If the current `g_lang` (auto-detected or loaded from `@lang`)
+by screenshot: the button showed clean "German | Deutsch" once selected,
+but every other German string on screen had its ä/ü rendering as blank.
+Fixed by testing `0x00E4` (an actual `ä`) instead - the lesson is that a
+test character must come from something the language *actually* renders
+beyond its own picker entry, not just be non-ASCII-adjacent in name only.**
+`langMap` holds the `L_*` indices that survived the check - `OnLang` cycles
+through it (not `0..L_COUNT-1` directly) so a skipped language is simply
+never landed on. If the current `g_lang` (auto-detected or loaded from `@lang`)
 doesn't pass this session, it silently falls back to `g_autoLang` (Kenshi's
 own detected language, always guaranteed to pass) rather than keep
 displaying broken text - the saved `@lang` preference isn't erased, just
@@ -155,17 +150,17 @@ changes to match, or a mod that broadens font coverage gets enabled).
 this fallback showed the top preset buttons ("ENABLE ALL" etc.) still
 displaying broken French while everything else correctly fell back to
 English. Cause: `BuildUi()` originally computed `langMap` and corrected
-`g_lang` *inline*, at the point where `optL` itself was created - but the
-preset buttons are built with `T(T_ENABLE_ALL)` etc. earlier in the same
-function, so they captured whatever `g_lang` was *before* the correction
-ran (still the unrenderable saved override) and never get rebuilt after
-(their captions are set once at creation, unlike the window
-title/categories/toggles which `Draw()` refreshes on every redraw). Fixed
-by moving the entire `langMap` computation and `g_lang` correction to the
-very top of `BuildUi()`, before any widget that calls `T()` is created -
-resolving the language *before* acting on it, rather than partway through.
+`g_lang` *inline*, further down the function - but the preset buttons are
+built with `T(T_ENABLE_ALL)` etc. earlier in the same call, so they
+captured whatever `g_lang` was *before* the correction ran (still the
+unrenderable saved override) and never get rebuilt after (their captions
+are set once at creation, unlike the window title/categories/toggles which
+`Draw()` refreshes on every redraw). Fixed by moving the entire `langMap`
+computation and `g_lang` correction to the very top of `BuildUi()`, before
+any widget that calls `T()` is created - resolving the language *before*
+acting on it, rather than partway through.
 
-This means the dropdown now answers all three "is this really
+This means the language button now answers all three "is this really
 unrenderable" questions the same way: Kenshi's own locale, a translation
 mod redefining the same font resource, or nothing at all - `FontHas`
 doesn't know or care which.
@@ -311,8 +306,7 @@ the top of the file and listed here.
 | `W` | `MyGUI::Widget` | base widget |
 | `WP` | `MyGUI::WidgetPtr` | widget pointer (event handler argument) |
 | `WN` | `MyGUI::Window` | the config window |
-| `B` | `MyGUI::Button` | every clickable row/button |
-| `CB` | `MyGUI::ComboBox` | the language dropdown - built from Kenshi's own `Kenshi_ComboBox` template |
+| `B` | `MyGUI::Button` | every clickable row/button, including the language cycle button |
 | `SV` | `MyGUI::ScrollView` | the scrolling list container |
 | `TXB` | `MyGUI::TextBox` | plain non-interactive text (tier dividers) - a different C++ type from `B`, so it needs its own pool |
 | `CL` | `MyGUI::Colour` | text colour |
