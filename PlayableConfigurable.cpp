@@ -187,6 +187,17 @@ const char* const LANG_CODE[L_COUNT] = {
 const char* const LANG_SHORT[L_COUNT] = {
     "EN", "RU", "ES", "ZH", "DE", "FR", "JA", "KO", "PT"
 };
+const char* const LANG_FULL[L_COUNT] = {
+    "English | English",
+    "Russian | " "\xD0\xA0\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9",
+    "Spanish | Espa" "\xC3\xB1" "ol",
+    "Chinese | " "\xE4\xB8\xAD\xE6\x96\x87",
+    "German | Deutsch",
+    "French | Fran" "\xC3\xA7" "ais",
+    "Japanese | " "\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E",
+    "Korean | " "\xED\x95\x9C\xEA\xB5\xAD\xEC\x96\xB4",
+    "Portuguese | Portugu" "\xC3\xAA" "s"
+};
 int g_lang = L_EN;
 const char* T(int id) { return STR[g_lang][id]; }
 S Fmt(int id, const S& a) { char b[512]; sprintf_s(b, T(id), a.c_str()); return S(b); }
@@ -922,15 +933,15 @@ void BuildUi()
                                           AL::Default, "PCLangLabel");
     langLabel->setTextAlign(AL::Left | AL::VCenter);
     langLabel->setTextColour(C_ON);
+    langLabel->setNeedToolTip(true);
+    langLabel->eventToolTip += DG(OnLangTip);
 
     optL = c->createWidgetReal<CB>("Kenshi_ComboBox", 0.34f, 0.928f, 0.64f, 0.055f,
                                    AL::Default, "PCO2");
     optL->setComboModeDrop(true);
-    for (int i = 0; i < L_COUNT; i++) optL->addItem(LANG_SHORT[i]);
+    for (int i = 0; i < L_COUNT; i++) optL->addItem(LANG_FULL[i]);
     optL->setIndexSelected(g_lang);
     optL->eventComboAccept += DG(OnLang);
-    optL->setNeedToolTip(true);
-    optL->eventToolTip += DG(OnLangTip);
 
     tip = gui->createWidget<B>(SK, IC(0, 0, 300, 34), AL::Default, "ToolTip", "PCToolTip");
     tip->setTextColour(C_ON);

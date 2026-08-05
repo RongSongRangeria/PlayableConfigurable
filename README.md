@@ -85,9 +85,29 @@ template - the same "reuse Kenshi's own skins" approach as `Kenshi_Button1`/
 `Kenshi_ScrollView` elsewhere in this file, `setComboModeDrop(true)` so it's
 list-only, not free-typed) lets the player override the auto-detected
 language, next to a static label (`langLabel`) showing the word
-"Language" translated. Picking an entry fires `eventComboAccept`
-(`OnLang(CB*, size_t)`) and persists the choice to `@lang` in the config
-file, same as every other setting.
+"Language" translated. Items are `LANG_FULL[L_COUNT]` - a fixed, *not*
+per-language-translated "English name | native name" pair (`"Russian | 
+Русский"`, `"Japanese | 日本語"`, etc.) so every entry stays identifiable
+regardless of whatever language is currently active - the whole point of a
+language picker is being readable before you've picked the right one.
+Picking an entry fires `eventComboAccept` (`OnLang(CB*, size_t)`) and
+persists the choice to `@lang` in the config file, same as every other
+setting.
+
+**Popup-list corruption bug found + fixed:** the hint tooltip was
+originally attached to `optL` itself (the combo). First real screenshot
+after shipping the ComboBox showed the popup list rendering as visual
+noise even though the closed combo displayed its selection cleanly -
+strong sign the two were fighting over the same space rather than a font
+problem (the closed state proved the font itself was fine). Root cause:
+Kenshi's `Kenshi_ComboBox` template puts its popup `ListBox` on layer
+`"Popup"`, while our tooltip widget is on layer `"ToolTip"` - if `ToolTip`
+renders above `Popup` (plausible; tooltips are usually top-most), hovering
+the combo to open its list would also fire our tooltip, drawing a large
+caveat-text box on top of the list it was covering. Fixed by moving
+`setNeedToolTip`/`eventToolTip` off `optL` and onto the static `langLabel`
+instead - same information, but the label never opens a competing popup so
+there's nothing for the tooltip to collide with.
 
 **Font caveat (why the override isn't risk-free):** Kenshi ships a
 Cyrillic/CJK-capable font override per locale (`locale/<code>/gui/fonts/
