@@ -93,9 +93,11 @@ msbuild PlayableConfigurable.vcxproj /p:Configuration=Release /p:Platform=x64
 
 `dist/PlayableConfigurable/` holds exactly what users get: a **0-record stub
 `.mod`** (the carrier so Kenshi lists the folder), `RE_Kenshi.json` declaring
-`PreloadPlugins`, the DLL, `README.txt`, `COPYING.txt` (GPLv3, required -
-KenshiLib linkage), and `source/`. To deploy manually, copy into
-`...\Kenshi\mods\PlayableConfigurable\`:
+`PreloadPlugins`, the DLL, `README.txt`, and `COPYING.txt` (GPLv3, required -
+KenshiLib linkage). Source itself is no longer bundled inline - it's at
+https://github.com/RongSongRangeria/PlayableConfigurable (linked from
+`README.txt`), which is what the repo this file lives in actually is. To
+deploy manually, copy into `...\Kenshi\mods\PlayableConfigurable\`:
 
 - `PlayableConfigurable.dll`
 - `PlayableConfigurable.mod`
@@ -136,9 +138,10 @@ was introduced in v0.3.0. So theoretically it would work with V0.3.0, but it was
 ## License
 
 GPLv3. This plugin links KenshiLib (GPLv3), so publishing it requires
-publishing this source under GPLv3 too - `COPYING.txt` ships the full
-license text alongside the DLL, and the `source/` folder ships this file.
-Built against [RE_Kenshi](https://github.com/BFrizzleFoShizzle/RE_Kenshi).
+publishing this source under GPLv3 too - that's what this repository is.
+`dist/PlayableConfigurable/COPYING.txt` ships the full license text
+alongside the DLL. Built against
+[RE_Kenshi](https://github.com/BFrizzleFoShizzle/RE_Kenshi).
 
 ---
 

@@ -41,8 +41,7 @@ Only character creation and the character editor are touched. NPCs, animals,
 factions, and existing saves behave exactly as vanilla/your other mods intend.
 
 [h1]License[/h1]
-GPLv3. Source is included in the download (source/ folder) since this plugin
-links KenshiLib. See the README for details.
+GPLv3. Source: [url=https://github.com/RongSongRangeria/PlayableConfigurable]github.com/RongSongRangeria/PlayableConfigurable[/url] - required since this plugin links KenshiLib. See the README for details.
 
 [i]If you run into a race that won't toggle, or a mod whose races don't show
 up right, leave a comment with the mod name and I'll take a look.[/i]
