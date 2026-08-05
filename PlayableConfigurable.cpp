@@ -184,9 +184,6 @@ const char* const STR[L_COUNT][T_COUNT] = {
 const char* const LANG_CODE[L_COUNT] = {
     "en_GB", "ru_RU", "es_ES", "zh_CN", "de_DE", "fr_FR", "ja_JP", "ko_KR", "pt_BR"
 };
-const char* const LANG_SHORT[L_COUNT] = {
-    "EN", "RU", "ES", "ZH", "DE", "FR", "JA", "KO", "PT"
-};
 const char* const LANG_FULL[L_COUNT] = {
     "English | English",
     "Russian | " "\xD0\xA0\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9",
