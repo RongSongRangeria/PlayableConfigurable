@@ -16,11 +16,6 @@ Since preload doesn't respect the enabled/disabled state,
 `ModEnabled()` reads `data\mods.cfg` itself at startup and 
 stays fully inert if the mod isn't listed.
 
-## Visibility model (verified in-game, not assumed)
-
-`RACE` = a race-group's own selector, 
-`SUBRACE` = the races inside it.
-
 **Visibility = `playable`, editor-limits & race-group**
 
 optional gate sits on top: `NEW_GAME_STARTOFF` records can carry a
