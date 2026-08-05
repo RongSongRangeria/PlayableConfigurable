@@ -1,20 +1,13 @@
 [Paste this into the Steam Workshop description field in FCS when you upload.
 Steam Workshop supports this BBCode subset: b, i, u, strike, h1, list/*, url,
 spoiler. Not included here since Steam renders it separately: title (comes
-from the upload name), tags (pick below), preview image (upload separately).
-
-NOTE: merged with the live edits made directly on the Steam page (the extra
-"It was built in RE_Kenshi 3.4..." line and the backstory paragraphs at the
-end) so pushing this through FCS won't lose that. Scope/License sections
-were missing from the live page (probably dropped when editing directly on
-Steam) - kept them here since removing them wasn't asked for; drop them
-yourself before pasting if that was intentional.]
+from the upload name), tags (pick below), preview image (upload separately).]
 
 [h1]PlayableConfigurable[/h1]
 
-Makes races and subraces playable in character creation - adapting to
+Makes races and subraces universally configurable and playable adapting to
 [b]your[/b] mod list, every time you launch. Add or remove race mods and this
-just keeps working: no patch to regenerate, no update to download.
+just keeps working (i hope): no need for conflicting patches and playable mods that cause conflict with your anim and model suites.
 
 [h1]Requirements[/h1]
 [b]Requires RE_Kenshi[/b] (v0.3.0+, tested against the current v0.3.4). Without
@@ -27,7 +20,7 @@ it this mod does nothing.
 [*] Click the RACES button on the main menu.
 [*] Toggle whole race groups or individual subraces. Presets: Enable All,
 Disable All, Default All (whatever your mods themselves mark playable),
-Vanilla Only (exactly Kenshi's own 8 selectable races).
+Vanilla Only (what base game kenshi has marked as playable).
 [*] Changes apply immediately - no restart needed to see them in a new game.
 [/list]
 
@@ -37,17 +30,22 @@ Vanilla Only (exactly Kenshi's own 8 selectable races).
 with no group, sorted by whichever mod added them), so a big modlist doesn't
 turn into a wall of checkboxes.
 [*] Hover any entry to see which mod it's from, or that it's vanilla.
-[*] Optional: allow animal races to be selected (borrowed creator sliders -
-may look odd, still experimental).
-[*] Optional: unlock per-start race restrictions.
-[*] Settings for a race whose mod isn't currently loaded are remembered and
+[*] Allow animal races to be selected (i don't promise all of these work well... i'm looking at you ironsides).
+[*] Unlock per-start race restrictions.
+[*] Saved memory for a race whose mod isn't currently loaded are remembered and
 come back the moment that mod is re-enabled.
-[*] The window follows Kenshi's own language setting: English, Russian,
-Spanish, and Chinese are all supported.
+[*] Experimental Language Support, i hope it works.
 [/list]
+
+[i]The Russian, Spanish, and Chinese sections below were machine-translated
+(AI-generated), not reviewed by a native speaker. If something reads wrong,
+say so in the comments and I'll fix it.[/i]
 
 [b]Russian / Русский[/b]
 [spoiler]
+[i](Машинный перевод, сгенерирован ИИ - не проверен носителем языка.
+Если что-то звучит не так, напишите в комментариях.)[/i]
+
 [h1]Требования[/h1]
 Требуется RE_Kenshi (v0.3.0+, проверено на текущей v0.3.4). Без него этот мод
 ничего не делает.
@@ -60,7 +58,7 @@ Spanish, and Chinese are all supported.
 [*] Нажмите кнопку RACES (РАСЫ) в главном меню.
 [*] Включайте целые группы рас или отдельные подрасы. Пресеты: Enable All
 (включить всё), Disable All (выключить всё), Default All (как задано вашими
-модами), Vanilla Only (только 8 ванильных играбельных рас).
+модами), Vanilla Only (что базовая игра Kenshi считает играбельным).
 [*] Изменения применяются сразу - перезапуск не нужен, чтобы увидеть их в
 новой игре.
 [/list]
@@ -72,18 +70,20 @@ Spanish, and Chinese are all supported.
 список модов не превращается в стену чекбоксов.
 [*] Наведите на любую строку, чтобы увидеть, из какого она мода, или что она
 ванильная.
-[*] Опционально: разрешить выбор животных рас (используются позаимствованные
-ползунки редактора - могут выглядеть странно, всё ещё экспериментально).
-[*] Опционально: снять ограничения рас для конкретных стартов.
+[*] Разрешить выбор животных рас (не обещаю, что все они работают
+нормально... это я про ironsides).
+[*] Снять ограничения рас для конкретных стартов.
 [*] Настройки расы, чей мод сейчас не загружен, сохраняются и возвращаются,
 как только мод снова включат.
-[*] Окно следует языку самой игры Kenshi: поддерживаются английский, русский,
-испанский и китайский.
+[*] Экспериментальная поддержка языков, надеюсь, что она работает.
 [/list]
 [/spoiler]
 
 [b]Spanish / Español[/b]
 [spoiler]
+[i](Traducción automática generada por IA - no revisada por un hablante
+nativo. Si algo suena mal, dilo en los comentarios.)[/i]
+
 [h1]Requisitos[/h1]
 Requiere RE_Kenshi (v0.3.0+, probado con la v0.3.4 actual). Sin él, este mod
 no hace nada.
@@ -96,8 +96,8 @@ con RE_Kenshi 3.4, pero en teoría también debería funcionar con la 3.0.
 [*] Haz clic en el botón RACES (RAZAS) del menú principal.
 [*] Activa grupos de raza completos o subrazas individuales. Preajustes:
 Enable All (activar todo), Disable All (desactivar todo), Default All (lo
-que tus mods marquen por defecto), Vanilla Only (las 8 razas seleccionables
-originales de Kenshi).
+que tus mods marquen por defecto), Vanilla Only (lo que el juego base de
+Kenshi marca como jugable).
 [*] Los cambios se aplican al instante - no hace falta reiniciar para verlos
 en una partida nueva.
 [/list]
@@ -110,18 +110,20 @@ las añadió) - una lista de mods grande no se convierte en un muro de
 casillas.
 [*] Pasa el ratón sobre cualquier entrada para ver de qué mod viene, o si es
 vainilla.
-[*] Opcional: permitir seleccionar razas de animales (usa deslizadores
-prestados del editor - pueden verse raros, sigue siendo experimental).
-[*] Opcional: desbloquear las restricciones de raza por inicio.
+[*] Permite seleccionar razas de animales (no prometo que todas funcionen
+bien... te miro a ti, ironsides).
+[*] Desbloquea las restricciones de raza por inicio.
 [*] Los ajustes de una raza cuyo mod no está cargado se recuerdan y vuelven
 en cuanto ese mod se reactiva.
-[*] La ventana sigue el idioma propio de Kenshi: se admiten inglés, ruso,
-español y chino.
+[*] Soporte de idiomas experimental, espero que funcione.
 [/list]
 [/spoiler]
 
 [b]Chinese / 中文[/b]
 [spoiler]
+[i](机器翻译,由 AI 生成,未经母语者校对。如果哪里读起来不对,请在评论区
+告诉我。)[/i]
+
 [h1]环境需求[/h1]
 需要 RE_Kenshi(v0.3.0 及以上,已在当前 v0.3.4 上测试过)。没有它,本模组不会
 生效。
@@ -133,8 +135,8 @@ español y chino.
 [*] 启用本模组和 RE_Kenshi,然后启动游戏。
 [*] 点击主菜单上的 RACES(种族)按钮。
 [*] 切换整个种族分组或单个亚种。预设:Enable All(全部启用)、Disable All
-(全部禁用)、Default All(按你的模组自身设定)、Vanilla Only(仅原版可选
-的 8 个种族)。
+(全部禁用)、Default All(按你的模组自身设定)、Vanilla Only(原版游戏本身
+标记为可玩的种族)。
 [*] 更改立即生效 - 无需重启即可在新游戏中看到。
 [/list]
 
@@ -144,12 +146,11 @@ español y chino.
 (Uncategorized,没有分组的种族,按添加它们的模组排序)- 模组列表再大也不
 会变成一堆复选框。
 [*] 将鼠标悬停在任意条目上可查看它来自哪个模组,或者它是否为原版内容。
-[*] 可选:允许选择动物种族(借用角色编辑器的滑动条 - 效果可能有点怪,仍属
-实验性功能)。
-[*] 可选:解除各开局对种族的限制。
+[*] 允许选择动物种族(不保证全部都能正常运作……说的就是你,ironsides)。
+[*] 解除各开局对种族的限制。
 [*] 某个种族所属的模组当前未加载时,其设置会被保留,该模组重新启用后会自
 动恢复。
-[*] 窗口会跟随 Kenshi 自身的语言设置:支持英语、俄语、西班牙语和中文。
+[*] 实验性语言支持,希望它能正常工作。
 [/list]
 [/spoiler]
 
