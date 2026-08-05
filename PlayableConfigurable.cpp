@@ -63,11 +63,59 @@ const char* const VANILLA[] = {
     "gamedata.quack", "gamedata.base", "dialogue.mod", "newwworld.mod", "rebirth.mod",
     "stick_people.mod", "chareditor.mod", "small_changes_otto.mod", "newwworld plus.mod"
 };
-const char* const TIER_NAMES[] = { "Race Groups", "Modded Groups", "Uncategorized" };
 const char* const VANILLA_PLAYABLE[] = {
     "17-gamedata.quack", "18019-gamedata.base", "5276-chareditor.mod", "17946-stick_people.mod",
     "55396-gamedata.base", "5346-stick_people.mod", "18961-gamedata.base", "18960-gamedata.base"
 };
+
+enum { L_EN, L_RU, L_ES, L_ZH, L_COUNT };
+enum {
+    T_RACE_GROUPS, T_MODDED_GROUPS, T_UNCATEGORIZED,
+    T_UNKNOWN_ORIGIN, T_VANILLA_PAREN, T_MOD_COLON,
+    T_UNGROUPED_VANILLA, T_UNGROUPED_MOD, T_UNGROUPED_VANILLA_DESC, T_UNGROUPED_MOD_DESC,
+    T_WIN_TITLE, T_CAT_COUNT, T_ON_TAG, T_OFF_TAG, T_ANIMAL_SUFFIX,
+    T_RACES_BTN, T_ENABLE_ALL, T_DISABLE_ALL, T_DEFAULT_ALL, T_VANILLA_ONLY,
+    T_ANIMALS_ON, T_ANIMALS_OFF, T_FORCE_ON, T_FORCE_OFF,
+    T_COUNT
+};
+const char* const STR[L_COUNT][T_COUNT] = {
+/* en_GB */ {
+    "Race Groups", "Modded Groups", "Uncategorized",
+    "unknown origin", "Vanilla (%s)", "Mod: %s",
+    "Ungrouped: Vanilla", "Ungrouped: %s", "vanilla races with no race group", "mod \"%s\" races with no race group",
+    "PlayableConfigurable  (%d/%d on)", "%s   (%d/%d on)", "[ ON ]  ", "[ off ]  ", "  (animal)",
+    "RACES", "ENABLE ALL", "DISABLE ALL", "DEFAULT ALL", "VANILLA ONLY",
+    "Animals allowed: ON", "Animals allowed: OFF", "Unlock forced starts: ON (restart to undo)", "Unlock forced starts: OFF"
+},
+/* ru_RU */ {
+    "\xD0\x93\xD1\x80\xD1\x83\xD0\xBF\xD0\xBF\xD1\x8B \xD1\x80\xD0\xB0\xD1\x81", "\xD0\x93\xD1\x80\xD1\x83\xD0\xBF\xD0\xBF\xD1\x8B \xD0\xBC\xD0\xBE\xD0\xB4\xD0\xBE\xD0\xB2", "\xD0\x91\xD0\xB5\xD0\xB7 \xD0\xBA\xD0\xB0\xD1\x82\xD0\xB5\xD0\xB3\xD0\xBE\xD1\x80\xD0\xB8\xD0\xB8",
+    "\xD0\xB8\xD1\x81\xD1\x82\xD0\xBE\xD1\x87\xD0\xBD\xD0\xB8\xD0\xBA \xD0\xBD\xD0\xB5\xD0\xB8\xD0\xB7\xD0\xB2\xD0\xB5\xD1\x81\xD1\x82\xD0\xB5\xD0\xBD", "\xD0\x92\xD0\xB0\xD0\xBD\xD0\xB8\xD0\xBB\xD1\x8C\xD0\xBD\xD0\xBE\xD0\xB5 (%s)", "\xD0\x9C\xD0\xBE\xD0\xB4: %s",
+    "\xD0\x91\xD0\xB5\xD0\xB7 \xD0\xB3\xD1\x80\xD1\x83\xD0\xBF\xD0\xBF\xD1\x8B: \xD0\xB2\xD0\xB0\xD0\xBD\xD0\xB8\xD0\xBB\xD1\x8C", "\xD0\x91\xD0\xB5\xD0\xB7 \xD0\xB3\xD1\x80\xD1\x83\xD0\xBF\xD0\xBF\xD1\x8B: %s", "\xD0\xB2\xD0\xB0\xD0\xBD\xD0\xB8\xD0\xBB\xD1\x8C\xD0\xBD\xD1\x8B\xD0\xB5 \xD1\x80\xD0\xB0\xD1\x81\xD1\x8B \xD0\xB1\xD0\xB5\xD0\xB7 \xD0\xB3\xD1\x80\xD1\x83\xD0\xBF\xD0\xBF\xD1\x8B", "\xD1\x80\xD0\xB0\xD1\x81\xD1\x8B \xD0\xBC\xD0\xBE\xD0\xB4\xD0\xB0 \"%s\" \xD0\xB1\xD0\xB5\xD0\xB7 \xD0\xB3\xD1\x80\xD1\x83\xD0\xBF\xD0\xBF\xD1\x8B",
+    "PlayableConfigurable  (%d/%d \xD0\xB2\xD0\xBA\xD0\xBB)", "%s   (%d/%d \xD0\xB2\xD0\xBA\xD0\xBB)", "[ \xD0\x92\xD0\x9A\xD0\x9B ]  ", "[ \xD0\xB2\xD1\x8B\xD0\xBA\xD0\xBB ]  ", "  (\xD0\xB6\xD0\xB8\xD0\xB2\xD0\xBE\xD1\x82\xD0\xBD\xD0\xBE\xD0\xB5)",
+    "\xD0\xA0\xD0\x90\xD0\xA1\xD0\xAB", "\xD0\x92\xD0\x9A\xD0\x9B\xD0\xAE\xD0\xA7\xD0\x98\xD0\xA2\xD0\xAC \xD0\x92\xD0\xA1\xD0\x95", "\xD0\x92\xD0\xAB\xD0\x9A\xD0\x9B\xD0\xAE\xD0\xA7\xD0\x98\xD0\xA2\xD0\xAC \xD0\x92\xD0\xA1\xD0\x95", "\xD0\x9F\xD0\x9E \xD0\xA3\xD0\x9C\xD0\x9E\xD0\x9B\xD0\xA7\xD0\x90\xD0\x9D\xD0\x98\xD0\xAE", "\xD0\xA2\xD0\x9E\xD0\x9B\xD0\xAC\xD0\x9A\xD0\x9E \xD0\x92\xD0\x90\xD0\x9D\xD0\x98\xD0\x9B\xD0\xAC",
+    "\xD0\x96\xD0\xB8\xD0\xB2\xD0\xBE\xD1\x82\xD0\xBD\xD1\x8B\xD0\xB5 \xD1\x80\xD0\xB0\xD0\xB7\xD1\x80\xD0\xB5\xD1\x88\xD0\xB5\xD0\xBD\xD1\x8B: \xD0\x92\xD0\x9A\xD0\x9B", "\xD0\x96\xD0\xB8\xD0\xB2\xD0\xBE\xD1\x82\xD0\xBD\xD1\x8B\xD0\xB5 \xD1\x80\xD0\xB0\xD0\xB7\xD1\x80\xD0\xB5\xD1\x88\xD0\xB5\xD0\xBD\xD1\x8B: \xD0\x92\xD0\xAB\xD0\x9A\xD0\x9B", "\xD0\xA1\xD0\xBD\xD1\x8F\xD1\x82\xD1\x8C \xD0\xB7\xD0\xB0\xD0\xBF\xD1\x80\xD0\xB5\xD1\x82 \xD1\x81\xD1\x82\xD0\xB0\xD1\x80\xD1\x82\xD0\xBE\xD0\xB2: \xD0\x92\xD0\x9A\xD0\x9B (\xD0\xBD\xD1\x83\xD0\xB6\xD0\xB5\xD0\xBD \xD0\xBF\xD0\xB5\xD1\x80\xD0\xB5\xD0\xB7\xD0\xB0\xD0\xBF\xD1\x83\xD1\x81\xD0\xBA)", "\xD0\xA1\xD0\xBD\xD1\x8F\xD1\x82\xD1\x8C \xD0\xB7\xD0\xB0\xD0\xBF\xD1\x80\xD0\xB5\xD1\x82 \xD1\x81\xD1\x82\xD0\xB0\xD1\x80\xD1\x82\xD0\xBE\xD0\xB2: \xD0\x92\xD0\xAB\xD0\x9A\xD0\x9B"
+},
+/* es_ES */ {
+    "Grupos de raza", "Grupos de mods", "Sin categoria",
+    "origen desconocido", "Vainilla (%s)", "Mod: %s",
+    "Sin grupo: Vainilla", "Sin grupo: %s", "razas vainilla sin grupo de raza", "razas del mod \"%s\" sin grupo de raza",
+    "PlayableConfigurable  (%d/%d activas)", "%s   (%d/%d activas)", "[ ON ]  ", "[ off ]  ", "  (animal)",
+    "RAZAS", "ACTIVAR TODO", "DESACTIVAR TODO", "POR DEFECTO", "SOLO VAINILLA",
+    "Animales permitidos: ON", "Animales permitidos: OFF", "Desbloquear inicios: ON (reiniciar para deshacer)", "Desbloquear inicios: OFF"
+},
+/* zh_CN */ {
+    "\xE7\xA7\x8D\xE6\x97\x8F\xE5\x88\x86\xE7\xBB\x84", "\xE6\xA8\xA1\xE7\xBB\x84\xE5\x88\x86\xE7\xBB\x84", "\xE6\x9C\xAA\xE5\x88\x86\xE7\xB1\xBB",
+    "\xE6\x9D\xA5\xE6\xBA\x90\xE6\x9C\xAA\xE7\x9F\xA5", "\xE5\x8E\x9F\xE7\x89\x88 (%s)", "\xE6\xA8\xA1\xE7\xBB\x84\xEF\xBC\x9A%s",
+    "\xE6\x9C\xAA\xE5\x88\x86\xE7\xBB\x84\xEF\xBC\x9A\xE5\x8E\x9F\xE7\x89\x88", "\xE6\x9C\xAA\xE5\x88\x86\xE7\xBB\x84\xEF\xBC\x9A%s", "\xE6\x97\xA0\xE5\x88\x86\xE7\xBB\x84\xE7\x9A\x84\xE5\x8E\x9F\xE7\x89\x88\xE7\xA7\x8D\xE6\x97\x8F", "\xE6\x9D\xA5\xE8\x87\xAA\xE6\xA8\xA1\xE7\xBB\x84\xE2\x80\x9C%s\xE2\x80\x9D\xE7\x9A\x84\xE6\x97\xA0\xE5\x88\x86\xE7\xBB\x84\xE7\xA7\x8D\xE6\x97\x8F",
+    "PlayableConfigurable  (%d/%d \xE5\xB7\xB2\xE5\x90\xAF\xE7\x94\xA8)", "%s   (%d/%d \xE5\xB7\xB2\xE5\x90\xAF\xE7\x94\xA8)", "[ \xE5\xBC\x80 ]  ", "[ \xE5\x85\xB3 ]  ", "  (\xE5\x8A\xA8\xE7\x89\xA9)",
+    "\xE7\xA7\x8D\xE6\x97\x8F", "\xE5\x85\xA8\xE9\x83\xA8\xE5\x90\xAF\xE7\x94\xA8", "\xE5\x85\xA8\xE9\x83\xA8\xE7\xA6\x81\xE7\x94\xA8", "\xE6\x81\xA2\xE5\xA4\x8D\xE9\xBB\x98\xE8\xAE\xA4", "\xE4\xBB\x85\xE5\x8E\x9F\xE7\x89\x88",
+    "\xE5\x85\x81\xE8\xAE\xB8\xE5\x8A\xA8\xE7\x89\xA9\xEF\xBC\x9A\xE5\xBC\x80", "\xE5\x85\x81\xE8\xAE\xB8\xE5\x8A\xA8\xE7\x89\xA9\xEF\xBC\x9A\xE5\x85\xB3", "\xE8\xA7\xA3\xE9\x99\xA4\xE5\x87\xBA\xE7\x94\x9F\xE9\x99\x90\xE5\x88\xB6\xEF\xBC\x9A\xE5\xBC\x80\xEF\xBC\x88\xE9\x9C\x80\xE9\x87\x8D\xE5\x90\xAF\xEF\xBC\x89", "\xE8\xA7\xA3\xE9\x99\xA4\xE5\x87\xBA\xE7\x94\x9F\xE9\x99\x90\xE5\x88\xB6\xEF\xBC\x9A\xE5\x85\xB3"
+}
+};
+const char* const LANG_CODE[L_COUNT] = { "en_GB", "ru_RU", "es_ES", "zh_CN" };
+int g_lang = L_EN;
+const char* T(int id) { return STR[g_lang][id]; }
+S Fmt(int id, const S& a) { char b[512]; sprintf_s(b, T(id), a.c_str()); return S(b); }
 
 struct Cfg
 {
@@ -188,8 +236,8 @@ bool Van(const S& s)
 S Org(const S& s)
 {
     S f = OrgFile(s);
-    if (f.empty()) return S("unknown origin");
-    return Van(s) ? ("Vanilla (" + f + ")") : ("Mod: " + f);
+    if (f.empty()) return S(T(T_UNKNOWN_ORIGIN));
+    return Van(s) ? Fmt(T_VANILLA_PAREN, f) : Fmt(T_MOD_COLON, f);
 }
 
 bool VanillaPlayable(const S& sid) { return InList(sid, VANILLA_PLAYABLE, COUNTOF(VANILLA_PLAYABLE)); }
@@ -206,6 +254,26 @@ bool ModEnabled()
     }
     fclose(f);
     return on;
+}
+
+int DetectLang()
+{
+    FILE* f = NULL;
+    if (fopen_s(&f, "settings.cfg", "r") != 0 || !f) return L_EN;
+    char buf[256];
+    int lang = L_EN;
+    while (fgets(buf, sizeof(buf), f))
+    {
+        S line = Trim(buf);
+        if (line.compare(0, 9, "language=") != 0) continue;
+        S v = line.substr(9);
+        if (v.compare(0, 3, "ru_") == 0) lang = L_RU;
+        else if (v.compare(0, 3, "es_") == 0) lang = L_ES;
+        else if (v.compare(0, 3, "zh_") == 0) lang = L_ZH;
+        break;
+    }
+    fclose(f);
+    return lang;
 }
 
 S CfgPath()
@@ -448,8 +516,8 @@ void Scan()
         if (c.sid.empty())
         {
             c.sid = key;
-            c.name = van ? "Ungrouped: Vanilla" : ("Ungrouped: " + OrgFile(sid));
-            c.origin = van ? "vanilla races with no race group" : ("mod \"" + OrgFile(sid) + "\" races with no race group");
+            c.name = van ? S(T(T_UNGROUPED_VANILLA)) : Fmt(T_UNGROUPED_MOD, OrgFile(sid));
+            c.origin = van ? S(T(T_UNGROUPED_VANILLA_DESC)) : Fmt(T_UNGROUPED_MOD_DESC, OrgFile(sid));
             c.open = Get(OpenMemo, c.sid.c_str(), false);
             c.tier = 2;
         }
@@ -517,7 +585,7 @@ void Draw()
     int on = 0;
     for (size_t i = 0; i < R.size(); i++) if (R[i].want) on++;
     char buf[192];
-    sprintf_s(buf, "PlayableConfigurable  (%d/%d on)", on, (int)R.size());
+    sprintf_s(buf, T(T_WIN_TITLE), on, (int)R.size());
     wnd->setCaption(buf);
 
     int wide = sv->getViewCoord().width;
@@ -532,7 +600,7 @@ void Draw()
             poolE[i]->setVisible(false);
             poolR[i]->setVisible(false);
             poolD[i]->setVisible(true);
-            sprintf_s(buf, "-- %s --", TIER_NAMES[d.cat]);
+            sprintf_s(buf, "-- %s --", T(T_RACE_GROUPS + d.cat));
             RowSet(poolD[i], 2, y, wide - 4, ROW_H - 4, buf, C_ON);
             y += ROW_H;
             continue;
@@ -545,7 +613,7 @@ void Draw()
             const Cat& c = K[d.cat];
             int hits = OnCount(c);
             RowSet(poolE[i], 2, y, EXP_W, ROW_H - 4, c.open ? "-" : "+", C_ON);
-            sprintf_s(buf, "%s   (%d/%d on)", c.name.c_str(), hits, (int)c.mem.size());
+            sprintf_s(buf, T(T_CAT_COUNT), c.name.c_str(), hits, (int)c.mem.size());
             RowSet(poolR[i], EXP_W + 6, y, wide - EXP_W - 12, ROW_H - 4, buf,
                    hits == (int)c.mem.size() ? C_ON : hits == 0 ? C_OFF : C_MIX);
         }
@@ -553,13 +621,13 @@ void Draw()
         {
             const Race& e = R[d.race];
             RowSet(poolR[i], INDENT, y, wide - INDENT - 10, ROW_H - 4,
-                   (e.want ? "[ ON ]  " : "[ off ]  ") + e.name + (e.lim ? "" : "  (animal)"), e.want ? C_ON : C_OFF);
+                   S(e.want ? T(T_ON_TAG) : T(T_OFF_TAG)) + e.name + (e.lim ? S("") : S(T(T_ANIMAL_SUFFIX))), e.want ? C_ON : C_OFF);
         }
         y += ROW_H;
     }
     sv->setCanvasSize(wide, y + 4);
-    SetOpt(optA, g.animals, "Animals allowed: ON", "Animals allowed: OFF");
-    SetOpt(optF, g.force, "Unlock forced starts: ON (restart to undo)", "Unlock forced starts: OFF");
+    SetOpt(optA, g.animals, T(T_ANIMALS_ON), T(T_ANIMALS_OFF));
+    SetOpt(optF, g.force, T(T_FORCE_ON), T(T_FORCE_OFF));
 }
 
 void Commit()
@@ -709,7 +777,7 @@ void BuildUi()
 
     launch = gui->createWidgetReal<B>(SK, 0.895f, 0.015f, 0.095f, 0.045f,
                                       AL::Default, "Window", "PlayableConfigurableLauncher");
-    launch->setCaption("RACES");
+    launch->setCaption(T(T_RACES_BTN));
     launch->eventMouseButtonClick += DG(OnLaunch);
 
     wnd = gui->createWidgetReal<WN>("Kenshi_WindowCX", 0.70f, 0.10f, 0.28f, 0.80f,
@@ -718,10 +786,10 @@ void BuildUi()
     wnd->eventWindowButtonPressed += DG(OnClose);
 
     W* c = wnd->getClientWidget();
-    Mk(c, 0.02f, 0.012f, 0.47f, 0.05f, "PCP0", "ENABLE ALL", OnPreset);
-    Mk(c, 0.51f, 0.012f, 0.47f, 0.05f, "PCP1", "DISABLE ALL", OnPreset);
-    Mk(c, 0.02f, 0.068f, 0.47f, 0.05f, "PCP2", "DEFAULT ALL", OnPreset);
-    Mk(c, 0.51f, 0.068f, 0.47f, 0.05f, "PCP3", "VANILLA ONLY", OnPreset);
+    Mk(c, 0.02f, 0.012f, 0.47f, 0.05f, "PCP0", T(T_ENABLE_ALL), OnPreset);
+    Mk(c, 0.51f, 0.012f, 0.47f, 0.05f, "PCP1", T(T_DISABLE_ALL), OnPreset);
+    Mk(c, 0.02f, 0.068f, 0.47f, 0.05f, "PCP2", T(T_DEFAULT_ALL), OnPreset);
+    Mk(c, 0.51f, 0.068f, 0.47f, 0.05f, "PCP3", T(T_VANILLA_ONLY), OnPreset);
 
     sv = c->createWidgetReal<SV>("Kenshi_ScrollView", 0.02f, 0.128f, 0.96f, 0.735f,
                                  AL::Stretch, "PCScroll");
@@ -759,6 +827,8 @@ void TitleShow_hook(TS* self, bool on)
 __declspec(dllexport) void startPlugin()
 {
     Log("plugin starting");
+    g_lang = DetectLang();
+    Log("language: %s", LANG_CODE[g_lang]);
     if (!ModEnabled())
     {
         Log("mod is disabled in the mod list - staying inactive");

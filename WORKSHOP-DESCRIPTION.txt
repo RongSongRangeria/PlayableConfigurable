@@ -34,6 +34,8 @@ may look odd, still experimental).
 [*] Optional: unlock per-start race restrictions.
 [*] Settings for a race whose mod isn't currently loaded are remembered and
 come back the moment that mod is re-enabled.
+[*] The window follows Kenshi's own language setting: English, Russian,
+Spanish, and Chinese are all supported.
 [/list]
 
 [h1]Scope[/h1]

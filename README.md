@@ -68,6 +68,30 @@ inert `#~` lines and returns when their mod does.
 race whose visibility already matches, a fresh install SHOULD change nothing:
  `0 enabled, 0 disabled`. `DEFAULT ALL` should restore that state
 
+## Localization
+
+The plugin's own UI (RACES button, window title, tier dividers, preset
+buttons, tooltips, option toggles) supports English, Russian, Spanish, and
+Chinese. Detected once at startup by reading `language=` out of Kenshi's own
+`settings.cfg` (same file the game's own Options menu writes) - any other
+value falls back to English. No restart-time cost, no bundled fonts: Kenshi
+ships its own Cyrillic/CJK-capable font overrides per locale
+(`locale/<code>/gui/fonts/kenshi_fonts.xml`, swapping in fonts with the
+needed Unicode ranges for the standard `Kenshi_StandardFont_*` resources our
+widgets already use), so glyphs render correctly for free as long as the
+game itself is running in that language - nothing to bundle or hook on our
+side. Race/mod names themselves aren't touched; those come from `GameData`
+and are whatever the source mod (or its own translation) named them.
+
+All four languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/
+L_ES/L_ZH`), looked up via `T(id)` and formatted via `Fmt(id, arg)` for the
+handful of `%s`/`%d` templates. Adding a language means adding one row to
+the table and one prefix check in `DetectLang()` - no other code changes.
+Terminology for shared concepts (e.g. "Race") was cross-checked against
+Kenshi's own shipped translation catalogs
+(`locale/<code>/LC_MESSAGES/main.po`) to stay consistent with the base
+game's vocabulary rather than inventing our own.
+
 ## Build environment (one-time)
 
 1. VC++ 2010 x64 platform toolset.
