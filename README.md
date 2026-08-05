@@ -165,21 +165,36 @@ language - fixed at the time by moving the computation to the very top of
 **Reverted to the original design: `OnLang` cycles `0..L_COUNT-1`
 unconditionally, with no font gate at all.** `FontHas`/`LANGS[].testcp`
 are still used, but now only to decide whether to show a warning, not
-whether a language can be selected. `Draw()` checks
-`!FontHas(LANGS[g_lang].testcp)` for the *currently selected* language on
-every redraw; if it fails, `langLabel` (normally the translated word
-"Language") is replaced with a fixed, deliberately **untranslated** English
-caption ("Font not loaded - may show blanks") in a new warning colour
-(`C_WARN`, warm red) instead of `C_ON`. Untranslated on purpose: if the
-warning is showing, it's because the *selected* language's own script
-isn't rendering right now - translating the warning into that same
-language risks the warning itself being unreadable. English is the one
-language `FontHas` can never fail for (ASCII is a strict subset of every
-font this game ships, including the bare base one), so it's the only safe
-choice for a message that has to stay legible exactly when everything
-else might not be. `langMap` and the `g_autoLang` fallback-language global
-it fed were removed entirely - dead code once cycling stopped needing a
-filtered list to walk.
+whether a language can be selected. `langMap` (the filtered list cycling
+used to walk) was removed entirely as dead code once the gate went away.
+
+**Warning caption moved to its own full-width row, and translated into
+Kenshi's own detected language rather than hardcoded English (2026-08-05,
+second pass on this same feature).** The first version swapped `langLabel`'s
+text in place, squeezed into the ~30%-width slot next to the language
+button - a real screenshot showed the longer warning text clipped against
+the window's left edge. Also, showing it only in English meant a
+non-English-reading player couldn't understand *why* their own selection
+looked broken. Fixed both: `langWarn` is a new `TXB`, its own row spanning
+the window's full width right below the language row (window height bumped
+0.80 -> 0.86 to fit it, and the whole bottom cluster - `optA`/`optF`/
+`langLabel`+`optL`/`langWarn` - repositioned to fill the taller client
+area). `Draw()` still checks `!FontHas(LANGS[g_lang].testcp)` for the
+*currently selected* language every redraw, but now shows
+`STR[g_autoLang][T_FONT_WARN]` when it fails - `g_autoLang` is back
+(re-added after being removed as dead code in the first pass; it now
+serves a different purpose than before), set once in `startPlugin()` from
+`DetectLang()` *before* any `@lang` config override is applied, so it
+always reflects Kenshi's own client language regardless of what the user
+has cycled the plugin's display to. That's the one language `FontHas` can
+never fail for (Kenshi loaded a font for its own setting by definition),
+making it the correct choice for a message that has to stay legible
+exactly when the *selected* language might not be rendering. `langWarn`
+also carries a hover tooltip (`OnFontWarnTip`) with a fixed, deliberately
+untranslated English explanation - a guaranteed-readable fallback for
+anyone who doesn't read the client language either, on the same
+show-a-short-caption-plus-hover-detail pattern `langLabel`/`T_LANG_HINT`
+already established.
 
 All 12 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/
 L_ES/L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT/L_UK/L_PL/L_ZHTW`), looked up via `T(id)`
@@ -376,7 +391,7 @@ the top of the file and listed here.
 | `WN` | `MyGUI::Window` | the config window |
 | `B` | `MyGUI::Button` | every clickable row/button, including the language cycle button |
 | `SV` | `MyGUI::ScrollView` | the scrolling list container |
-| `TXB` | `MyGUI::TextBox` | plain non-interactive text (tier dividers, `langLabel`) - a different C++ type from `B`, so it needs its own pool |
+| `TXB` | `MyGUI::TextBox` | plain non-interactive text (tier dividers, `langLabel`, `langWarn`) - a different C++ type from `B`, so it needs its own pool |
 | `CL` | `MyGUI::Colour` | text colour |
 | `AL` | `MyGUI::Align` | widget alignment |
 | `IC` | `MyGUI::IntCoord` | pixel rect |
@@ -391,7 +406,7 @@ the top of the file and listed here.
 | `TAG` | `"[PlayableConfigurable] "` - prefixed once, inside `Emit`, instead of at every call site |
 | `COUNTOF(a)` | array element count (`sizeof(a)/sizeof(*(a))`, cast to `int`) |
 | `HOOK(fn, detour, orig, msg)` | install a KenshiLib hook, `Err(msg)` if it fails |
-| `TIP_GUARD(info)` | shared early-return prefix for tooltip handlers (`OnTip`/`OnLangTip`) - hide-on-`Hide`, bail on anything but `Show` |
+| `TIP_GUARD(info)` | shared early-return prefix for tooltip handlers (`OnTip`/`OnLangTip`/`OnFontWarnTip`) - hide-on-`Hide`, bail on anything but `Show` |
 
 ### Globals
 
@@ -406,8 +421,10 @@ the top of the file and listed here.
 | `Orig` | race sid -> its pristine visibility (`playable && limits && group`), captured the first time `Apply` sees it |
 | `wnd`, `launch`, `sv`, `tip` | window, RACES button, scroll view, tooltip |
 | `optA`, `optF`, `optL` | the Animals / Forced-starts / Language toggle buttons |
-| `langLabel` | static text next to `optL` - normally the translated word "Language", swapped for a font-not-loaded warning when the selected language's script isn't rendering |
-| `g_lang` | index into `STR[][]`/`LANGS[]` for the UI's currently active language |
+| `langLabel` | static text next to `optL` - always the translated word "Language" |
+| `langWarn` | full-width row below the language row - hidden unless the *selected* language's font isn't loaded, in which case it shows the warning in `g_autoLang` (Kenshi's own client language, not necessarily the selected one) |
+| `g_lang` | index into `STR[][]`/`LANGS[]` for the UI's currently active (user-selected) language |
+| `g_autoLang` | index into `STR[][]`/`LANGS[]` for Kenshi's own detected client language - set once at startup, never changed by `@lang`/`OnLang`; exists solely so `langWarn` can speak a language that's guaranteed to actually render |
 | `poolE`, `poolR` | pooled expander and row buttons |
 | `poolD` | pooled divider text widgets (`Kenshi_TextboxStandardText` skin - a real Kenshi label skin, not a button) |
 
@@ -493,8 +510,8 @@ saves the config file AND re-applies to live GameData immediately.
 
 ### `C_ON` / `C_OFF` / `C_MIX` / `C_WARN`
 Native-Kenshi palette: warm white for active, dim grey for inactive, a middle
-tone for partially-enabled groups, and a warm red reserved for the
-font-not-loaded warning on `langLabel`.
+tone for partially-enabled groups, and a warm red reserved for `langWarn`'s
+font-not-loaded message.
 
 ### `Race::origin`
 Provenance label derived from the stringID suffix.
