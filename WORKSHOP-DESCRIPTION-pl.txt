@@ -4,7 +4,7 @@ obsługuje następujący podzbiór BBCode: b, i, u, strike, h1, list/*, url,
 spoiler. Nie uwzględniono tutaj, ponieważ Steam renderuje to osobno: tytuł
 (nazwa przesłanego pliku), tagi, obraz podglądu.]
 
-[h1]PlayableConfigurable[/h1]
+[h1]Uniwersalnie grywalne rasy i zwierzęta[/h1]
 
 Sprawia, że rasy i podrasy są uniwersalnie konfigurowalne i grywalne,
 dostosowując się do [b]twojej[/b] listy modów za każdym razem, gdy
@@ -90,6 +90,10 @@ rasy. jeśli nie? daj mi znać, to był trochę eksperyment, żeby sprawdzić,
 czy uda mi się obejść priorytetyzację kolejności ładowania i rozwiązać mój
 problem niezależnie od innych modów z grywalnymi rasami.
 
-[i]Jeśli natkniesz się na rasę, której nie da się przełączyć, albo na mod,
-którego rasy nie wyświetlają się poprawnie, zostaw komentarz z nazwą moda,
-a ja się temu przyjrzę.[/i]
+Jeśli doczytałeś/doczytałaś aż dotąd, zostaw mi łapkę w górę, dzięki temu
+mój dzień będzie odrobinę lepszy.
+
+[i]Jeśli natkniesz się na rasę, której nie da się przełączyć, na mod,
+którego rasy nie wyświetlają się poprawnie, albo na inny problem, zostaw
+komentarz z nazwą moda, a ja się temu przyjrzę. To powiedziawszy, jeśli
+brakuje ci modeli, animacji itp., ten mod tego nie dotyczy.[/i]

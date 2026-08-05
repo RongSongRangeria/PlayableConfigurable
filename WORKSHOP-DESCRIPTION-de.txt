@@ -4,7 +4,7 @@ unterstützt diesen BBCode-Umfang: b, i, u, strike, h1, list/*, url, spoiler.
 Nicht enthalten, da Steam es separat rendert: Titel (Upload-Name), Tags,
 Vorschaubild.]
 
-[h1]PlayableConfigurable[/h1]
+[h1]Universell spielbare Rassen und Tiere[/h1]
 
 Macht Rassen und Unterrassen universell konfigurierbar und spielbar, passend
 zu [b]deiner[/b] Modliste, jedes Mal wenn du das Spiel startest. Füge
@@ -93,6 +93,11 @@ hinzufügen. wenn nicht? sag mir Bescheid, das hier war ein bisschen ein
 Experiment, um zu sehen, ob ich die Ladereihenfolge-Priorisierung umgehen
 und mein Problem getrennt von anderen Playables-Mods lösen kann.
 
-[i]Falls du auf eine Rasse stößt, die sich nicht umschalten lässt, oder
-einen Mod, dessen Rassen nicht richtig angezeigt werden, hinterlass einen
-Kommentar mit dem Modnamen und ich schau's mir an.[/i]
+Wenn du bis hierher gelesen hast, gib mir einen Daumen hoch, das macht
+meinen Tag ein kleines bisschen besser.
+
+[i]Falls du auf eine Rasse stößt, die sich nicht umschalten lässt, einen
+Mod, dessen Rassen nicht richtig angezeigt werden, oder ein anderes Problem
+hast, hinterlass einen Kommentar mit dem Modnamen und ich schau's mir an.
+Aber Achtung: bei fehlenden Modellen, Animationen usw. rührt dieses Mod
+nichts an.[/i]

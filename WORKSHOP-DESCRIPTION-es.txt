@@ -4,7 +4,7 @@ FCS/Steam. Steam Workshop admite este subconjunto de BBCode: b, i, u, strike,
 h1, list/*, url, spoiler. No incluido aquí porque Steam lo renderiza por
 separado: título (nombre de subida), etiquetas, imagen de vista previa.]
 
-[h1]PlayableConfigurable[/h1]
+[h1]Razas y Animales Universalmente Jugables[/h1]
 
 Hace que las razas y subrazas sean configurables y jugables de forma
 universal, adaptándose a [b]tu[/b] lista de mods cada vez que inicias el
@@ -91,6 +91,10 @@ Esto DEBERÍA ser compatible con todos los mods que editen o añadan razas.
 la priorización por orden de carga y resolver mi problema por separado de
 otros mods de razas jugables.
 
-[i]Si te encuentras con una raza que no se puede activar o desactivar, o un
-mod cuyas razas no aparecen bien, deja un comentario con el nombre del mod y
-le echaré un vistazo.[/i]
+Si has leído hasta aquí, dale a "me gusta", me hace sentir un poquito mejor
+el día.
+
+[i]Si te encuentras con una raza que no se puede activar o desactivar, un
+mod cuyas razas no aparecen bien, o cualquier otro problema, deja un
+comentario con el nombre del mod y le echaré un vistazo. Eso sí, si te
+faltan modelos, animaciones, etc., este mod no toca eso.[/i]

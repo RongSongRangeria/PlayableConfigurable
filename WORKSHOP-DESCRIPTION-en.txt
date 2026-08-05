@@ -4,7 +4,7 @@ gets its own file now, this is the English one). Steam Workshop supports this
 BBCode subset: b, i, u, strike, h1, list/*, url, spoiler. Not included here
 since Steam renders it separately: title (upload name), tags, preview image.]
 
-[h1]PlayableConfigurable[/h1]
+[h1]Universally Playable Races & Animals[/h1]
 
 Makes races and subraces universally configurable and playable adapting to
 [b]your[/b] mod list, every time you launch. Add or remove race mods and this
@@ -76,5 +76,9 @@ This SHOULD be compatible with all mods that edit or add races. if not? let
 me know, this was a bit of an experiment to see if i could get around load
 order prioritization and solve my issue separately from other playables mods.
 
+If you've read this far, give me a thumbs up, it makes me feel marginally better about my day.
+
 [i]If you run into a race that won't toggle, or a mod whose races don't show
-up right, leave a comment with the mod name and I'll take a look.[/i]
+up right, or some other issue leave a comment with the mod name and I'll take
+a look. that being said, if you have missing models, animations, etc. this
+mod doesn't touch that.[/i]

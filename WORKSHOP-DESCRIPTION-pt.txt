@@ -4,7 +4,7 @@ Workshop. O Steam Workshop suporta este subconjunto de BBCode: b, i, u,
 strike, h1, list/*, url, spoiler. Não incluído aqui pois o Steam renderiza
 isso separadamente: título (nome de upload), tags, imagem de prévia.]
 
-[h1]PlayableConfigurable[/h1]
+[h1]Raças e Animais Universalmente Jogáveis[/h1]
 
 Torna raças e subraças universalmente configuráveis e jogáveis, se adaptando
 à [b]sua[/b] lista de mods, toda vez que você inicia o jogo. Adicione ou
@@ -89,6 +89,10 @@ raças. se não for? me avisa, isso foi meio que um experimento pra ver se eu
 conseguia contornar a priorização de ordem de carregamento e resolver meu
 problema separado de outros mods de jogabilidade.
 
-[i]Se você encontrar uma raça que não ativa/desativa, ou um mod cujas raças
-não aparecem direito, deixe um comentário com o nome do mod e eu vou dar
-uma olhada.[/i]
+Se você leu até aqui, me dá um like, isso me faz sentir um pouquinho melhor
+sobre o meu dia.
+
+[i]Se você encontrar uma raça que não ativa/desativa, um mod cujas raças
+não aparecem direito, ou qualquer outro problema, deixe um comentário com
+o nome do mod e eu vou dar uma olhada. Dito isso, se você tem modelos,
+animações etc. faltando, este mod não mexe nisso.[/i]

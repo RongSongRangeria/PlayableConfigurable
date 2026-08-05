@@ -5,7 +5,7 @@ sous-ensemble de BBCode : b, i, u, strike, h1, list/*, url, spoiler. Non
 inclus ici car Steam les affiche séparément : titre (nom du fichier envoyé),
 tags, image d'aperçu.]
 
-[h1]PlayableConfigurable[/h1]
+[h1]Races et animaux jouables universellement[/h1]
 
 Rend les races et sous-races universellement configurables et jouables en
 s'adaptant à [b]votre[/b] liste de mods, à chaque lancement. Ajoutez ou
@@ -91,6 +91,11 @@ races. si ce n'est pas le cas ? dites-le moi, c'était un peu une expérience
 pour voir si je pouvais contourner la priorité de l'ordre de chargement et
 résoudre mon problème indépendamment des autres mods de races jouables.
 
-[i]Si vous tombez sur une race qui ne veut pas s'activer/désactiver, ou un
-mod dont les races ne s'affichent pas correctement, laissez un commentaire
-avec le nom du mod et j'y jetterai un œil.[/i]
+Si vous avez lu jusqu'ici, mettez-moi un pouce en l'air, ça me fera me
+sentir un tout petit peu mieux dans ma journée.
+
+[i]Si vous tombez sur une race qui ne veut pas s'activer/désactiver, un mod
+dont les races ne s'affichent pas correctement, ou un autre problème,
+laissez un commentaire avec le nom du mod et j'y jetterai un œil. Ceci dit,
+si vous avez des modèles, animations, etc. manquants, ce mod n'y touche
+pas.[/i]
