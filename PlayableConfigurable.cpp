@@ -12,6 +12,8 @@
 #include <mygui/MyGUI_Button.h>
 #include <mygui/MyGUI_ComboBox.h>
 #include <mygui/MyGUI_Delegate.h>
+#include <mygui/MyGUI_FontManager.h>
+#include <mygui/MyGUI_ResourceTrueTypeFont.h>
 #include <mygui/MyGUI_ScrollView.h>
 #include <mygui/MyGUI_TextBox.h>
 #include <mygui/MyGUI_WidgetToolTip.h>
@@ -58,6 +60,10 @@ typedef MyGUI::ToolTipInfo TT;
 #define COUNTOF(a) (int)(sizeof(a) / sizeof(*(a)))
 #define HOOK(fn, detour, orig, msg) \
     if (KenshiLib::SUCCESS != KenshiLib::AddHook(KenshiLib::GetRealAddress(fn), detour, &orig)) Err(msg)
+#define TIP_GUARD(info) \
+    if (!tip) return; \
+    if ((info).type == TT::Hide) { tip->setVisible(false); return; } \
+    if ((info).type != TT::Show) return;
 
 enum { ROW_H = 34, EXP_W = 38, INDENT = 30 };
 const CL C_ON(0.95f, 0.93f, 0.86f), C_OFF(0.45f, 0.44f, 0.40f), C_MIX(0.72f, 0.70f, 0.64f);
@@ -195,10 +201,24 @@ const char* const LANG_FULL[L_COUNT] = {
     "Korean | " "\xED\x95\x9C\xEA\xB5\xAD\xEC\x96\xB4",
     "Portuguese | Portugu" "\xC3\xAA" "s"
 };
-int g_lang = L_EN;
+const unsigned LANG_TESTCP[L_COUNT] = {
+    'E', 0x0420, 0x00F1, 0x4E2D, 'D', 0x00E7, 0x65E5, 0xD55C, 0x00EA
+};
+int g_lang = L_EN, g_autoLang = L_EN;
+std::vector<int> langMap;
 const char* T(int id) { return STR[g_lang][id]; }
 S Fmt(int id, const S& a) { char b[512]; sprintf_s(b, T(id), a.c_str()); return S(b); }
-int LangByCode(const S& code) { for (int i = 0; i < L_COUNT; i++) if (code == LANG_CODE[i]) return i; return -1; }
+int LangByCode(const S& code) { for (int i = 0; i < L_COUNT; i++) if (code.compare(0, 3, LANG_CODE[i], 3) == 0) return i; return -1; }
+
+bool FontHas(unsigned cp)
+{
+    MyGUI::IFont* f = MyGUI::FontManager::getInstance().getByName("Kenshi_StandardFont_Medium");
+    MyGUI::ResourceTrueTypeFont* tt = f ? f->castType<MyGUI::ResourceTrueTypeFont>(false) : NULL;
+    if (!tt) return true;
+    std::vector<std::pair<MyGUI::Char, MyGUI::Char> > rg = tt->getCodePointRanges();
+    for (size_t i = 0; i < rg.size(); i++) if (cp >= rg[i].first && cp <= rg[i].second) return true;
+    return false;
+}
 
 struct Cfg
 {
@@ -246,6 +266,7 @@ void Draw();
 void Commit();
 void Ensure(size_t needed);
 void Rebuild();
+void SyncLangCombo();
 
 void Emit(void (*fn)(const std::string&), const char* fmt, va_list a)
 {
@@ -358,17 +379,12 @@ int DetectLang()
     while (fgets(buf, sizeof(buf), f))
     {
         S line = Trim(buf);
-        if (line.compare(0, 9, "language=") != 0) continue;
-        S v = line.substr(9);
-        if (v.compare(0, 3, "ru_") == 0) lang = L_RU;
-        else if (v.compare(0, 3, "es_") == 0) lang = L_ES;
-        else if (v.compare(0, 3, "zh_") == 0) lang = L_ZH;
-        else if (v.compare(0, 3, "de_") == 0) lang = L_DE;
-        else if (v.compare(0, 3, "fr_") == 0) lang = L_FR;
-        else if (v.compare(0, 3, "ja_") == 0) lang = L_JA;
-        else if (v.compare(0, 3, "ko_") == 0) lang = L_KO;
-        else if (v.compare(0, 3, "pt_") == 0) lang = L_PT;
-        break;
+        if (line.compare(0, 9, "language=") == 0)
+        {
+            int l = LangByCode(line.substr(9));
+            if (l >= 0) lang = l;
+            break;
+        }
     }
     fclose(f);
     return lang;
@@ -729,7 +745,7 @@ void Draw()
     SetOpt(optA, g.animals, T(T_ANIMALS_ON), T(T_ANIMALS_OFF));
     SetOpt(optF, g.force, T(T_FORCE_ON), T(T_FORCE_OFF));
     if (langLabel) langLabel->setCaption(T(T_LANGUAGE));
-    if (optL) optL->setIndexSelected(g_lang);
+    SyncLangCombo();
 }
 
 void Commit()
@@ -794,8 +810,8 @@ void OnOpt(WP s)
 
 void OnLang(CB* s, size_t index)
 {
-    if (index >= (size_t)L_COUNT) return;
-    g_lang = (int)index;
+    if (index >= langMap.size()) return;
+    g_lang = langMap[index];
     g.lang = LANG_CODE[g_lang];
     if (launch) launch->setCaption(T(T_RACES_BTN));
     SaveCfg();
@@ -804,38 +820,40 @@ void OnLang(CB* s, size_t index)
     Draw();
 }
 
-void OnLangTip(WP s, const TT& info)
+void SyncLangCombo()
 {
-    if (!tip) return;
-    if (info.type == TT::Hide) { tip->setVisible(false); return; }
-    if (info.type != TT::Show) return;
-    S text = T(T_LANG_HINT);
+    if (!optL) return;
+    for (size_t i = 0; i < langMap.size(); i++)
+        if (langMap[i] == g_lang) { optL->setIndexSelected(i); return; }
+}
+
+void ShowTip(const S& text, const TT& info)
+{
     tip->setCaption(text);
     tip->setSize(Glyphs(text) * 9 + 26, 34);
     tip->setPosition(info.point.left + 18, info.point.top + 10);
     tip->setVisible(true);
 }
 
+void OnLangTip(WP s, const TT& info)
+{
+    TIP_GUARD(info)
+    ShowTip(T(T_LANG_HINT), info);
+}
+
 void OnTip(WP s, const TT& info)
 {
-    if (!tip) return;
-    if (info.type == TT::Hide) { tip->setVisible(false); return; }
-    if (info.type != TT::Show) return;
+    TIP_GUARD(info)
     int i = Idx(s);
     if (i < 0 || D[i].kind == 0) return;
-    S text;
     if (D[i].kind == 1)
     {
         const Cat& c = K[D[i].cat];
         char b[64];
         sprintf_s(b, "  |  %d subrace(s)", (int)c.mem.size());
-        text = c.sid[0] == ':' ? (c.origin + b) : ("Race group - " + c.origin + b);
+        ShowTip(c.sid[0] == ':' ? (c.origin + b) : ("Race group - " + c.origin + b), info);
     }
-    else text = R[D[i].race].origin;
-    tip->setCaption(text);
-    tip->setSize(Glyphs(text) * 9 + 26, 34);
-    tip->setPosition(info.point.left + 18, info.point.top + 10);
-    tip->setVisible(true);
+    else ShowTip(R[D[i].race].origin, info);
 }
 
 void OnLaunch(WP s)
@@ -936,8 +954,13 @@ void BuildUi()
     optL = c->createWidgetReal<CB>("Kenshi_ComboBox", 0.34f, 0.928f, 0.64f, 0.055f,
                                    AL::Default, "PCO2");
     optL->setComboModeDrop(true);
-    for (int i = 0; i < L_COUNT; i++) optL->addItem(LANG_FULL[i]);
-    optL->setIndexSelected(g_lang);
+    langMap.clear();
+    for (int i = 0; i < L_COUNT; i++)
+        if (FontHas(LANG_TESTCP[i])) { langMap.push_back(i); optL->addItem(LANG_FULL[i]); }
+    bool avail = false;
+    for (size_t i = 0; i < langMap.size(); i++) if (langMap[i] == g_lang) avail = true;
+    if (!avail) g_lang = g_autoLang;
+    SyncLangCombo();
     optL->eventComboAccept += DG(OnLang);
 
     tip = gui->createWidget<B>(SK, IC(0, 0, 300, 34), AL::Default, "ToolTip", "PCToolTip");
@@ -967,7 +990,7 @@ void TitleShow_hook(TS* self, bool on)
 __declspec(dllexport) void startPlugin()
 {
     Log("plugin starting");
-    g_lang = DetectLang();
+    g_lang = g_autoLang = DetectLang();
     Log("language: %s", LANG_CODE[g_lang]);
     if (!ModEnabled())
     {

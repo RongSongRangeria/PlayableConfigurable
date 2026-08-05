@@ -109,30 +109,51 @@ caveat-text box on top of the list it was covering. Fixed by moving
 instead - same information, but the label never opens a competing popup so
 there's nothing for the tooltip to collide with.
 
-**Font caveat (why the override isn't risk-free):** Kenshi ships a
+**Font caveat, and how the dropdown is gated against it:** Kenshi ships a
 Cyrillic/CJK-capable font override per locale (`locale/<code>/gui/fonts/
 kenshi_fonts.xml`, swapping in fonts with the needed Unicode `Codes` ranges
 for the standard `Kenshi_StandardFont_*` resources our widgets reuse), but
 **only one** such override is ever loaded - whichever one matches Kenshi's
 own `language=` setting at boot. `en_GB` is the only locale with *no*
-override at all (bare ASCII + narrow punctuation). So text renders
-correctly for exactly two cases: whatever language Kenshi itself is
-running in (that font is already loaded), and English (a subset of every
-font here). Overriding to anything else may show blank glyphs for that
-language's special characters, depending on what Kenshi's own client
-loaded - there's no way to fix this from a plugin without bundling and
-hooking in our own fonts, which was deliberately out of scope. `optL` has
-a tooltip (`T_LANG_HINT`) saying exactly this, in whatever language is
-currently active.
+override at all (bare ASCII + narrow punctuation). First real test of the
+override (picking French while Kenshi itself stayed in English) showed
+exactly this: every accented character rendered as a blank space, both in
+our window and in the combo's own popup list.
+
+Rather than just document the risk, `FontHas(cp)` checks it directly:
+`MyGUI::FontManager::getInstance().getByName("Kenshi_StandardFont_Medium")`
+gets whatever font resource is *actually* registered right now, cast to
+`ResourceTrueTypeFont` to call `getCodePointRanges()` - the real, current
+list of Unicode ranges that font supports, whoever last registered it
+(Kenshi's own locale override, or a translation mod that redefines the
+same resource name). `LANG_TESTCP[L_COUNT]` holds one representative
+codepoint per language (a real character from that language's own name in
+`LANG_FULL`, e.g. `0x00E7` for French's `ç`) - each verified against the
+actual declared ranges in every `locale/<code>/gui/fonts/kenshi_fonts.xml`
+before shipping, not assumed. `BuildUi()` only calls `optL->addItem()` for
+languages that pass; `langMap[dropdown position] -> L_* index` tracks which
+survived, since skipped entries shift every later position. If the current
+`g_lang` (auto-detected or loaded from `@lang`) doesn't pass this session,
+it silently falls back to `g_autoLang` (Kenshi's own detected language,
+always guaranteed to pass) rather than keep displaying broken text - the
+saved `@lang` preference isn't erased, just not applied until it's
+renderable again (e.g. Kenshi's own language changes to match, or a mod
+that broadens font coverage gets enabled). This means the dropdown now
+answers all three "is this really unrenderable" questions the same way:
+Kenshi's own locale, a translation mod redefining the same font resource,
+or nothing at all - `FontHas` doesn't know or care which.
 
 All 9 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/L_ES/
 L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT`), looked up via `T(id)` and formatted via
 `Fmt(id, arg)` for the handful of `%s`/`%d` templates. Adding a language
-means adding one row to the table and one prefix check in `DetectLang()` -
-no other code changes. Terminology for shared concepts (e.g. "Race") was
-cross-checked against Kenshi's own shipped translation catalogs
-(`locale/<code>/LC_MESSAGES/main.po`) to stay consistent with the base
-game's vocabulary rather than inventing our own.
+means adding one row to the table, one `LANG_CODE`/`LANG_FULL`/`LANG_TESTCP`
+entry, and one prefix check inside `LangByCode()` - no other code changes;
+`DetectLang()` and the `@lang` config loader both call the same
+`LangByCode()`, rather than each hand-rolling their own prefix matching.
+Terminology for shared concepts (e.g. "Race") was cross-checked against
+Kenshi's own shipped translation catalogs (`locale/<code>/LC_MESSAGES/
+main.po`) to stay consistent with the base game's vocabulary rather than
+inventing our own.
 
 **Race/group names are not translated by us, but likely already are by
 Kenshi itself.** `fcs.def` flags both `RACE` and `RACE_GROUP` as
@@ -281,6 +302,7 @@ the top of the file and listed here.
 | `TAG` | `"[PlayableConfigurable] "` - prefixed once, inside `Emit`, instead of at every call site |
 | `COUNTOF(a)` | array element count (`sizeof(a)/sizeof(*(a))`, cast to `int`) |
 | `HOOK(fn, detour, orig, msg)` | install a KenshiLib hook, `Err(msg)` if it fails |
+| `TIP_GUARD(info)` | shared early-return prefix for tooltip handlers (`OnTip`/`OnLangTip`) - hide-on-`Hide`, bail on anything but `Show` |
 
 ### Globals
 
