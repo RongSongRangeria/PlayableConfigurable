@@ -73,11 +73,16 @@ race whose visibility already matches, a fresh install SHOULD change nothing:
 ## Localization
 
 The plugin's own UI (RACES button, window title, tier dividers, preset
-buttons, tooltips, option toggles) supports all 9 languages Kenshi itself
-ships: English, Russian, Spanish, Chinese, German, French, Japanese,
-Korean, and Portuguese (Brazil) - confirmed against FCS's own Translation
-Mode language list, which matches the `locale/` folders Kenshi ships.
-Detected once at startup by reading `language=` out of Kenshi's own
+buttons, tooltips, option toggles) supports 12 languages: the 9 Kenshi
+itself ships (English, Russian, Spanish, Chinese Simplified, German,
+French, Japanese, Korean, Portuguese/Brazil - confirmed against FCS's own
+Translation Mode language list, which matches the `locale/` folders Kenshi
+ships) plus 3 more Kenshi has no official locale for at all (Ukrainian,
+Polish, Chinese Traditional) - added because community translation mods
+commonly cover these regardless, and the font-capability check below
+doesn't care whether coverage came from Kenshi itself or a mod, so there
+was no reason to artificially cap the list at Kenshi's own 9. Detected
+once at startup by reading `language=` out of Kenshi's own
 `settings.cfg` (same file the game's own Options menu writes) - any other
 value falls back to English. A button at the bottom of the window (`optL`,
 next to a static label `langLabel` showing the word "Language" translated)
@@ -165,13 +170,18 @@ unrenderable" questions the same way: Kenshi's own locale, a translation
 mod redefining the same font resource, or nothing at all - `FontHas`
 doesn't know or care which.
 
-All 9 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/L_ES/
-L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT`), looked up via `T(id)` and formatted via
-`Fmt(id, arg)` for the handful of `%s`/`%d` templates. Adding a language
-means adding one row to the table, one `LANG_CODE`/`LANG_FULL`/`LANG_TESTCP`
-entry, and one prefix check inside `LangByCode()` - no other code changes;
-`DetectLang()` and the `@lang` config loader both call the same
-`LangByCode()`, rather than each hand-rolling their own prefix matching.
+All 12 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/
+L_ES/L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT/L_UK/L_PL/L_ZHTW`), looked up via `T(id)`
+and formatted via `Fmt(id, arg)` for the handful of `%s`/`%d` templates.
+Adding a language means adding one row to the table plus one `LANG_CODE`/
+`LANG_FULL`/`LANG_TESTCP` entry - no other code changes; `DetectLang()` and
+the `@lang` config loader both call the same `LangByCode()` rather than
+each hand-rolling their own prefix matching. `LangByCode()` tries an exact
+match on the full code first, only falling back to a 3-character prefix
+match (`"ru_"`, `"de_"`, etc., tolerating whatever regional suffix Kenshi
+happens to report) if nothing matched exactly - needed once `zh_CN` and
+`zh_TW` coexisted, since both share the same 3-character prefix but are
+different scripts, not regional variants of the same one.
 Terminology for shared concepts (e.g. "Race") was cross-checked against
 Kenshi's own shipped translation catalogs (`locale/<code>/LC_MESSAGES/
 main.po`) to stay consistent with the base game's vocabulary rather than
