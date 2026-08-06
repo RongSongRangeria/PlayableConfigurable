@@ -1,317 +1,209 @@
 # PlayableConfigurable
 
-Makes races and subraces playable in Kenshi's character creator, adapting at
-every launch to whatever mods are loaded. 
-Think of it like a configurable patch to make every race and animal playable
+A KenshiLib/RE_Kenshi preload plugin. Makes every race and subrace
+configurable and playable from an in-game window, re-evaluated against
+whatever mods are active on each launch - no static patch to regenerate
+when the mod list changes.
 
-## Why preload
+## Architecture
 
-RE_Kenshi's postload phase only loads plugins whose mod is enabled 
-(`ou->activeMods`), but its preload phase loads every *available* mod's 
-plugin regardless of enablement (`ou->availabelModsOrderedList`). 
-Being preload is also what lets `Apply()` run before the engine builds 
-the `RaceGroupData`/`RaceData` caches the character editor reads
-postload plugins land too late
-Since preload doesn't respect the enabled/disabled state,
-`ModEnabled()` reads `data\mods.cfg` itself at startup and 
-stays fully inert if the mod isn't listed.
+Loads as a **preload** plugin (`RE_Kenshi.json` declares `PreloadPlugins`),
+not postload:
 
-**Visibility = `playable`, editor-limits & race-group**
+- RE_Kenshi's postload phase only loads plugins for mods listed in
+  `ou->activeMods`. Its preload phase loads every *available* mod's plugin
+  regardless of enablement (`ou->availabelModsOrderedList`), so
+  `ModEnabled()` reads `data\mods.cfg` itself at startup and stays fully
+  inert (no hooks, no work) if `PlayableConfigurable.mod` isn't in the
+  active list.
+- Preload timing is also what lets `Apply()` run before the engine builds
+  the `RaceGroupData`/`RaceData` caches the character editor actually
+  reads - a postload plugin would edit the data too late for those caches
+  to reflect it.
 
-optional gate sits on top: `NEW_GAME_STARTOFF` records can carry a
-`force race` list restricting a specific start to certain races (vanilla:
-Fishman is playable, has limits, and has its own group, but no start's
-allow-list includes it). `@clearForceRace` deals with this.
+### Visibility model
 
-- **Enable** = `playable = true`, an editor-limits xml (borrowed via
-  `animalLimitsFile` when `allowAnimals` is set), and group membership -
-  creating a plugin-owned `PCG::<sid>` group only if the race has no group at
-  all yet.
-- **Disable** = `playable = false`.
-  `RaceData::raceGroup` and `RaceData::isRelatedRace(...)` are gameplay-facing fields/methods (not
-  editor-only), and `Item::canEquip(RaceData*, bool)` takes a race directly,
-  so a group a mod authored for reasons other than the creator could
-  plausibly feed equipment-fit or relatedness checks for real NPCs.
+A race is selectable in the creator when three things are all true:
+`playable` bool, an editor-limits xml file, and membership in >=1
+`RACE_GROUP`. An optional fourth gate applies per-start: `NEW_GAME_STARTOFF`
+records can carry a `force race` list restricting that specific start to
+certain races (vanilla example: Fishman is playable/has limits/has a
+group, but no start's allow-list includes it) - `@clearForceRace` clears
+these lists.
 
-Both actions no-op instantly if the race is already in the desired
-visibility state - confirmed on a fresh install with no config:
-`0 enabled, 0 disabled`.
+- **Enable**: `playable = true`; borrow an editor-limits xml via
+  `animalLimitsFile` if missing (only when `allowAnimals` is set); ensure
+  group membership, creating a plugin-owned `PCG::<sid>` group only if the
+  race has no group at all.
+- **Disable**: `playable = false` only. Group membership is left untouched
+  - `RaceData::raceGroup`/`isRelatedRace(...)` are gameplay-facing (not
+  editor-only) fields, and `Item::canEquip(RaceData*, bool)` takes a race
+  directly, so removing a group a mod authored for other reasons could
+  plausibly affect equipment-fit/relatedness checks on real NPCs.
 
-## Scope
+Both actions no-op if the race is already in the desired state - a fresh
+install with no config produces `0 enabled, 0 disabled`.
 
-Only character creation and the character editor are affected. `RaceData` -
-the runtime object gameplay consults - has no `playable` field, so NPCs,
-animals, factions, combat and existing saves SHOULD be untouched.
+### Hooks
 
-## Hooks
+| Hook | Purpose |
+|---|---|
+| `GameDataManager::postProcessingTheDatas` | `Apply()` runs before the original, so edits land before the engine's caches are built. Also the re-apply point for later reloads (save import, mod-list change). |
+| `TitleScreen::_CONSTRUCTOR` | Builds the RACES button + window the first time the title screen exists. |
+| `TitleScreen::_NV_show` | Mirrors the RACES button's visibility onto the title screen's own show/hide, so it only appears on the main menu. |
 
-- `GameDataManager::postProcessingTheDatas` - `Apply()` runs BEFORE the
-  original, so edits are in place before the engine's caches are built. Also
-  the re-apply point for later reloads (save import, mod-list change).
-- `TitleScreen::_CONSTRUCTOR` - builds the RACES button and window the first
-  time the title screen exists.
-- `TitleScreen::_NV_show` - mirrors the RACES button's visibility onto the
-  title screen's own show/hide, so it only appears on the main menu.
+### Scope
 
-## Config
+`RaceData` - the runtime object gameplay actually consults - has no
+`playable` field, so NPCs, animals, factions, combat, and existing saves
+are untouched. Only character creation and the character editor read the
+gated data.
 
-`PlayableConfigurable.config.txt`: lines `on|<stringId>|name|note`,
-`@allowAnimals`, `@animalLimitsFile`, `@clearForceRace`, `@lang` (a
-`locale/`-style code like `ru_RU`; empty/unrecognized = auto-detect from
-Kenshi's own `settings.cfg` every boot). Located at
-`mods\PlayableConfigurable\` when that exists (manual/dev install), otherwise
-`%LOCALAPPDATA%\kenshi\` Steam-managed workshop folders,
-get revalidated on update. Races absent from the current launch shouldn't appear, 
-mod should only show loaded races from modlist with other configs remaining
-inert `#~` lines and returns when their mod does.
+## Config file
 
-**A race with no setting defaults to the game's own choice** 
-(`Orig`, captured before the plugin modifies anything), and the apply pass skips any
-race whose visibility already matches, a fresh install SHOULD change nothing:
- `0 enabled, 0 disabled`. `DEFAULT ALL` should restore that state
+`PlayableConfigurable.config.txt`, plain text:
+
+```
+on|<stringId>|<name>|<note>
+@allowAnimals = true|false
+@animalLimitsFile = <path>
+@clearForceRace = true|false
+@lang = <locale code, e.g. ru_RU>
+```
+
+Location: `mods\PlayableConfigurable\` if that folder exists (manual/dev
+install), else `%LOCALAPPDATA%\kenshi\` (Workshop installs, since the
+Steam-managed mod folder gets revalidated/wiped on update).
+
+A race absent from the config defaults to `Orig` - its own pristine
+visibility as captured the first time `Apply` saw it (i.e. whatever the
+currently loaded mods themselves assert). Races no longer in the current
+load order are kept as inert `#~`-prefixed lines and reactivate
+automatically if their mod returns.
 
 ## Localization
 
-The plugin's own UI (RACES button, window title, tier dividers, preset
-buttons, tooltips, option toggles) supports 12 languages: the 9 Kenshi
-itself ships (English, Russian, Spanish, Chinese Simplified, German,
-French, Japanese, Korean, Portuguese/Brazil - confirmed against FCS's own
-Translation Mode language list, which matches the `locale/` folders Kenshi
-ships) plus 3 more Kenshi has no official locale for at all (Ukrainian,
-Polish, Chinese Traditional) - added because community translation mods
-commonly cover these regardless, and the font-capability check below
-doesn't care whether coverage came from Kenshi itself or a mod, so there
-was no reason to artificially cap the list at Kenshi's own 9. Detected
-once at startup by reading `language=` out of Kenshi's own
-`settings.cfg` (same file the game's own Options menu writes) - any other
-value falls back to English. A button at the bottom of the window (`optL`,
-next to a static label `langLabel` showing the word "Language" translated)
-lets the player override the auto-detected language, cycling to the next
-available one on each click and persisting the choice to `@lang` in the
-config file, same as every other setting. Its caption is `LANGS[g_lang].full`
-- a fixed, *not* per-language-translated "English name | native name" pair
-(`"Russian | Русский"`, `"Japanese | 日本語"`, etc.) so whichever one is
-showing stays identifiable regardless of what language is currently active.
+The plugin's own UI (RACES button, window title, tier dividers, presets,
+tooltips, option toggles, language controls) supports **12 languages**,
+stored in one `STR[L_COUNT][T_COUNT]` table and one `LANGS[L_COUNT]` array
+of `{code, full, testcp}` structs.
 
-**Tried a real dropdown first (`MyGUI::ComboBox`, built from Kenshi's own
-`Kenshi_ComboBox` template), reverted after an unresolved rendering bug.**
-The closed combo always displayed its selection cleanly, but the popup
-list rendered as visual noise every time it opened - confirmed with a
-screenshot showing corruption even for a single guaranteed-safe
-`"English | English"` entry (proven via diagnostic logging that the font
-looked up 9 test codepoints correctly - `FontHas` itself was never the
-problem). Kenshi's own `.layout` files instantiate `Kenshi_ComboBox` the
-same simple way this code did (`<Widget type="ComboBox" skin=
-"Kenshi_ComboBox" .../>`, no manual reconstruction of its internal
-Button/Client/List structure), so the creation method wasn't the issue
-either - something about how the popup `ListBox`'s items actually get
-skinned/fonted at runtime didn't work right for this specific composite
-widget, and diagnosing further needed live interaction this session
-couldn't do. Reverted to a plain `Kenshi_Button1` cycle button - the same
-skin every other interactive element in this file already uses
-successfully, with zero exceptions.
+**9 are Kenshi's own official languages** (matches FCS's Translation Mode
+list and the `locale/` folders Kenshi ships): English, Russian, Spanish,
+Chinese Simplified, German, French, Japanese, Korean, Portuguese (Brazil).
+**3 are opportunistic extras** with no Kenshi-shipped locale at all:
+Ukrainian, Polish, Chinese Traditional - included because community
+translation mods commonly ship fonts for them, and the font-safety check
+below doesn't care whether coverage came from Kenshi or a mod.
 
-**Font caveat, and how the button is gated against it:** Kenshi ships a
-Cyrillic/CJK-capable font override per locale (`locale/<code>/gui/fonts/
-kenshi_fonts.xml`, swapping in fonts with the needed Unicode `Codes` ranges
-for the standard `Kenshi_StandardFont_*` resources our widgets reuse), but
-**only one** such override is ever loaded - whichever one matches Kenshi's
-own `language=` setting at boot. `en_GB` is the only locale with *no*
-override at all (bare ASCII + narrow punctuation). First real test of the
-override (picking French while Kenshi itself stayed in English) showed
-exactly this: every accented character rendered as a blank space.
+### Language selection
 
-Rather than just document the risk, `FontHas(cp)` checks it directly:
-`MyGUI::FontManager::getInstance().getByName("Kenshi_StandardFont_Medium")`
-gets whatever font resource is *actually* registered right now, cast to
-`ResourceTrueTypeFont` to call `getCodePointRanges()` - the real, current
-list of Unicode ranges that font supports, whoever last registered it
-(Kenshi's own locale override, or a translation mod that redefines the
-same resource name). `LANGS[L_COUNT].testcp` holds one representative
-codepoint per language - each verified against the actual declared ranges
-in every `locale/<code>/gui/fonts/kenshi_fonts.xml` before shipping, not
-assumed. **Picking the test character from `LANGS[].full`'s native name isn't
-automatically safe: German's entry ("Deutsch") happens to be the one
-German word in the whole plugin with no umlaut, so the first version of
-this table tested `'D'` for German - plain ASCII, which passes under
-*any* font including the base English one with zero German glyphs. That
-meant German was always offered regardless of whether its actual special
-characters (used elsewhere, e.g. "Beschränkung") could render - confirmed
-by screenshot: the button showed clean "German | Deutsch" once selected,
-but every other German string on screen had its ä/ü rendering as blank.
-Fixed by testing `0x00E4` (an actual `ä`) instead - the lesson is that a
-test character must come from something the language *actually* renders
-beyond its own picker entry, not just be non-ASCII-adjacent in name only.**
-**Gated cycling tried and reverted (2026-08-05, same day): `langMap` held
-only the `L_*` indices that passed `FontHas`, and `OnLang` cycled through
-that filtered list instead of `0..L_COUNT-1` directly** - meant to stop the
-button from ever landing on a language it already knew would render blank.
-This backfired on exactly the install it was supposed to protect: on a
-plain `en_GB` install (no locale font override loaded at all, per the
-caveat above), `FontHas` only passes for English's own ASCII test
-character, so `langMap` held a single entry and the button did nothing -
-the user couldn't cycle to *any* other language just to look at it, even
-though this project's whole design already assumed and accepted the
-font-mismatch risk (the very first version of this feature was a "full
-cycle + warning" design, chosen explicitly over restricting to only the
-2 guaranteed-safe options). A now-superseded ordering bug lived here too:
-`BuildUi()` computed `langMap` inline partway through the function, so the
-top preset buttons (built earlier in the same call, captions set once at
-creation) kept whatever `g_lang` was *before* the correction ran, while
-everything `Draw()` refreshes every redraw correctly showed the corrected
-language - fixed at the time by moving the computation to the very top of
-`BuildUi()`, but the whole mechanism it was fixing has since been removed.
+- `g_lang` (currently displayed) is detected once at startup from
+  `language=` in Kenshi's own `settings.cfg`, via `DetectLang()` ->
+  `LangByCode()` (exact match first, 3-char prefix fallback - needed
+  because `zh_CN`/`zh_TW` share a prefix but are different scripts).
+- A button (`optL`) cycles `g_lang` through all 12 unconditionally on
+  click, persisting the choice to `@lang`. Its caption is
+  `LANGS[g_lang].full` - a fixed "English name | native name" pair, not
+  itself translated, so the label stays identifiable regardless of what
+  `g_lang` currently is.
+- `g_autoLang` is a second, independent index: Kenshi's own detected
+  client language, set once at startup and never changed by
+  `@lang`/cycling. It exists only so the font-warning banner (below) can
+  speak a language guaranteed to actually render.
 
-**Reverted to the original design: `OnLang` cycles `0..L_COUNT-1`
-unconditionally, with no font gate at all.** `FontHas`/`LANGS[].testcp`
-are still used, but now only to decide whether to show a warning, not
-whether a language can be selected. `langMap` (the filtered list cycling
-used to walk) was removed entirely as dead code once the gate went away.
+### Font-safety check
 
-**Warning caption moved to its own full-width row, and translated into
-Kenshi's own detected language rather than hardcoded English (2026-08-05,
-second pass on this same feature).** The first version swapped `langLabel`'s
-text in place, squeezed into the ~30%-width slot next to the language
-button - a real screenshot showed the longer warning text clipped against
-the window's left edge. Also, showing it only in English meant a
-non-English-reading player couldn't understand *why* their own selection
-looked broken. Fixed both: `langWarn` is a new `TXB`, its own row spanning
-the window's full width right below the language row (window height bumped
-0.80 -> 0.86 to fit it, and the whole bottom cluster - `optA`/`optF`/
-`langLabel`+`optL`/`langWarn` - repositioned to fill the taller client
-area). `Draw()` still checks `!FontHas(LANGS[g_lang].testcp)` for the
-*currently selected* language every redraw, but now shows
-`STR[g_autoLang][T_FONT_WARN]` when it fails - `g_autoLang` is back
-(re-added after being removed as dead code in the first pass; it now
-serves a different purpose than before), set once in `startPlugin()` from
-`DetectLang()` *before* any `@lang` config override is applied, so it
-always reflects Kenshi's own client language regardless of what the user
-has cycled the plugin's display to. That's the one language `FontHas` can
-never fail for (Kenshi loaded a font for its own setting by definition),
-making it the correct choice for a message that has to stay legible
-exactly when the *selected* language might not be rendering. `langWarn`
-also carries a hover tooltip (`OnFontWarnTip`) with a fixed, deliberately
-untranslated English explanation - a guaranteed-readable fallback for
-anyone who doesn't read the client language either, on the same
-show-a-short-caption-plus-hover-detail pattern `langLabel`/`T_LANG_HINT`
-already established.
+Kenshi loads exactly one Cyrillic/CJK-capable font override at a time,
+matching whatever `language=` Kenshi itself is set to
+(`locale/<code>/gui/fonts/kenshi_fonts.xml`); `en_GB` is the only locale
+with no override (bare ASCII). Picking a `g_lang` other than Kenshi's own
+can render as blank glyphs.
 
-All 12 languages live in one `STR[L_COUNT][T_COUNT]` table (`L_EN/L_RU/
-L_ES/L_ZH/L_DE/L_FR/L_JA/L_KO/L_PT/L_UK/L_PL/L_ZHTW`), looked up via `T(id)`
-and formatted via `Fmt(id, arg)` for the handful of `%s`/`%d` templates.
-Adding a language means adding one row to the table plus one `LANGS[]`
-entry (`{code, full, testcp}` - consolidated from three separate
-parallel arrays that had to stay in sync by index into a single `Lang`
-struct array, closing off a class of bug where adding a language updates
-two of the three and silently desyncs the third) - no other code changes;
-`DetectLang()` and the `@lang` config loader both call the same `LangByCode()` rather than
-each hand-rolling their own prefix matching. `LangByCode()` tries an exact
-match on the full code first, only falling back to a 3-character prefix
-match (`"ru_"`, `"de_"`, etc., tolerating whatever regional suffix Kenshi
-happens to report) if nothing matched exactly - needed once `zh_CN` and
-`zh_TW` coexisted, since both share the same 3-character prefix but are
-different scripts, not regional variants of the same one.
-Terminology for shared concepts (e.g. "Race") was cross-checked against
-Kenshi's own shipped translation catalogs (`locale/<code>/LC_MESSAGES/
-main.po`) to stay consistent with the base game's vocabulary rather than
-inventing our own.
+`FontHas(cp)` checks this directly rather than trusting the language
+code: it looks up whatever font resource is *actually* registered right
+now (`MyGUI::FontManager::getByName("Kenshi_StandardFont_Medium")` ->
+`ResourceTrueTypeFont::getCodePointRanges()`), so it's correct regardless
+of whether coverage came from Kenshi's own locale or a translation mod
+redefining the same resource name. `LANGS[i].testcp` is one representative
+codepoint per language, each verified against the real declared `<Code
+range>` in every `locale/<code>/gui/fonts/kenshi_fonts.xml` - chosen to be
+a character the language actually needs elsewhere in its own strings, not
+just any non-ASCII character from its own name (e.g. German's `testcp` is
+`ä`, not a letter from "Deutsch," which has none).
 
-**Only 9 of the 12 are Kenshi's own official languages - confirmed
-directly against FCS's own "Translation mode" dropdown (2026-08-05,
-screenshot):** `en_GB/ru_RU/es_ES/zh_CN/de_DE/fr_FR/ja_JP/ko_KR/pt_BR`,
-exactly matching the `locale/` folder listing from earlier. `uk_UA`,
-`pl_PL`, and `zh_TW` aren't in that list at all - they were added because
-some race/animal mods in the community happen to ship translations (and
-therefore fonts) for them, not because Kenshi itself does. `FontHas`
-already handles the *safety* side of this correctly regardless of
-official-vs-not (it checks whatever font is actually loaded, from
-whatever source), but from a "will this reliably look right" standpoint
-the honest framing is: 9 guaranteed, 3 opportunistic. Documented as such
-in `WORKSHOP-DESCRIPTION.txt` and `README.txt` rather than presenting all
-12 as equally supported.
+`Draw()` checks `FontHas(LANGS[g_lang].testcp)` every redraw. If it
+fails, `langWarn` (a full-width row below the language button) shows
+`STR[g_autoLang][T_FONT_WARN]` - the warning translated into Kenshi's
+*own* client language, since that's the one language `FontHas` can never
+fail for. Hovering it shows a fixed, deliberately untranslated English
+explanation (`OnFontWarnTip`) as a universal fallback. The font check
+gates the warning only, never selection - `optL` always offers all 12
+regardless of what's currently renderable.
 
-**Race/group names are not translated by us, but likely already are by
-Kenshi itself.** `fcs.def` flags both `RACE` and `RACE_GROUP` as
-`TRANSLATE: ALL`, and Kenshi's shipped `locale/<code>/gamedata.po` catalogs
-have matching entries keyed by record ID (e.g. `msgid "Fishman"` ->
-`msgstr "Рыболюд"` in `ru_RU`). `e.name`/`c.name` are read straight from
-`GameData::name` (`Scan()`) - never inline during our hook, only later on
-window-open/commit, well after Kenshi's own data-loading pipeline has
-already run - so for vanilla/base-game races this should already reflect
-whatever Kenshi itself localized, for free. Not yet directly confirmed
-in-game (blocked by the launcher dialog issue below before reaching a race
-name in a non-English session) - inferred from the catalog evidence, not
-observed. Third-party mod races only translate if that mod's own author
-shipped a catalog for it - outside our control either way. Mod/file names
-shown in tooltips (e.g. `small_changes_otto.mod`) are literal identifiers
-and correctly stay untranslated; only the wrapping template text around
-them ("Mod: ", "Vanilla (", "Ungrouped: ") is ours.
+### Data table
 
-**Fixed-buffer overflow risk found + fixed (2026-08-05, robustness pass
-before Workshop upload):** `Draw()`'s category row built `T_CAT_COUNT`
-("%s   (%d/%d on)") into a 192-byte stack buffer via `sprintf_s`, where
-`%s` was `c.name` - a `RACE_GROUP` display name that can come straight
-from a third-party mod, i.e. unbounded, author-controlled text. Unlike
-`snprintf`, MSVC's `_s` family doesn't quietly truncate on overflow - it
-invokes the CRT's invalid-parameter handler, which by default terminates
-the process. Risk is real but not uniform across languages: a mod author
-writing category names in Chinese/Japanese/Korean spends 3 UTF-8 bytes per
-character versus 1 for Latin script, so a moderately long CJK category
-name reaches the 192-byte ceiling far sooner than an equivalent-looking
-English one - the exact opposite of "works regardless of language."
-Fixed by moving `%s` out of the template entirely: `T_CAT_COUNT` is now
-just the numeric suffix (`"   (%d/%d on)"`, mechanically stripped of its
-leading `%s` in all 12 languages, no translated words touched), built
-into the small fixed buffer, then concatenated onto `c.name` as a
-`std::string` - exactly how the race-row branch two lines below already
-handled its own unbounded `e.name`. `Fmt()`'s buffer was also bumped
-512 -> 2048 bytes as cheap insurance against the same class of risk: its
-`%s` argument is a mod's origin filename, and NTFS allows up to 255
-characters per path component - up to ~765 UTF-8 bytes for an all-CJK
-filename, which could exceed the old 512-byte buffer on a sufficiently
-long non-Latin mod filename.
+- `STR[L_COUNT][T_COUNT]`: one row per language, looked up via `T(id)`
+  (current `g_lang`) and formatted via `Fmt(id, arg)` for `%s`/`%d`
+  templates.
+- `LANGS[L_COUNT]`: `{code, full, testcp}` per language - single source
+  of truth for `LangByCode`, `DetectLang`, `OnLang`, `SyncLangBtn`, and
+  the font check.
+- Adding a language = one `STR[]` row + one `LANGS[]` entry, no other
+  code changes.
+- Non-ASCII table entries are `\xHH`-escaped UTF-8 (not raw literal
+  characters), since this toolchain doesn't reliably treat a BOM-less
+  source file as UTF-8. Every escape run is isolated in its own adjacent
+  string-literal segment (`"\xC3\xA9" "buts"`, not `"\xA9buts"`) - `\x`
+  in C/C++ greedily consumes any following hex-digit character, so an
+  escape immediately followed by a literal `b`/`c`/`d`/`f` etc. merges
+  into one oversized, uncompilable escape otherwise.
+- Terminology for shared concepts (e.g. "Race") is cross-checked against
+  Kenshi's own shipped translation catalogs
+  (`locale/<code>/LC_MESSAGES/main.po`).
 
-**Hardcoded-English tooltip found + fixed:** `OnTip`'s category tooltip built
-its text from two literal English strings (`"Race group - "` and `"  |  %d
-subrace(s)"`), missed entirely by the localization pass since it's assembled
-at hover-time rather than read from `STR[][]` like everything else. Found on
-a final full-file review, not by playing in another language. Fixed by
-reusing the already-translated `T_RACE_GROUPS` label as the prefix instead of
-a new string, and dropping the subrace count outright - it's redundant with
-the `(hits/total on)` count `Draw()` already puts on the row itself, so no
-new per-language translation was needed at all.
+### Race/mod name translation
 
-**Tooltip sizing bug found + fixed:** both tooltips (`OnTip`, `OnLangTip`)
-originally sized their box off `text.size()` - the *byte* length of a
-`std::string`. That's fine for ASCII but wildly wrong for UTF-8 text where
-one visual character can be 2-3 bytes (a Chinese/Korean sentence would
-massively over-size its tooltip box). Fixed with `Glyphs()`, which counts
-UTF-8 lead bytes (`(b & 0xC0) != 0x80`) instead of raw bytes - not
-pixel-perfect for wide CJK glyphs, but far closer than counting bytes.
+Race and category names (`e.name`/`c.name`) are read straight from
+`GameData::name` and not translated by this plugin. `fcs.def` flags
+`RACE`/`RACE_GROUP` as `TRANSLATE: ALL`, and Kenshi's shipped
+`locale/<code>/gamedata.po` catalogs have matching entries keyed by record
+ID, so vanilla/base-game names should already reflect Kenshi's own
+localization by the time this plugin reads them (inferred from catalog
+structure, not directly confirmed in-game). Third-party mod races only
+translate if that mod shipped its own catalog. Mod/file names shown in
+tooltips (e.g. `small_changes_otto.mod`) are literal identifiers and
+intentionally stay untranslated - only the wrapping template text
+("Mod: ", "Vanilla (", "Ungrouped: ") is.
 
-**VS2010 `\x` escape gotcha:** non-ASCII UI text is written as `\xHH`
-byte-escaped UTF-8 (not raw literal characters) because this toolchain
-doesn't reliably treat a BOM-less source file as UTF-8. That escaping has
-its own trap: `\x` consumes *any* number of following hex-digit characters
-(`0-9a-fA-F`), so an escape immediately followed by a literal letter like
-`b`/`c`/`d`/`f` silently merges into one oversized escape and fails to
-compile (`C2022: too big for character`) - e.g. `"\xA9buts"` reads as
-`\xA9B` + `uts`, not `é` + `buts`. Every escape run must be its own
-adjacent string-literal segment (`"\xC3\xA9" "buts"`, which the compiler
-concatenates with zero runtime cost) so it's always immediately followed by
-a closing quote, never a literal letter.
+### Buffer safety
+
+Any fixed-size `sprintf_s` buffer fed by mod-provided text (category
+names, origin filenames) is a crash vector, disproportionately for
+non-Latin scripts (3 UTF-8 bytes/char for CJK vs. 1 for Latin) - MSVC's
+`_s` family terminates the process on overflow rather than truncating.
+`Draw()`'s category row avoids this by building only the numeric suffix
+into a fixed buffer, then concatenating the unbounded mod name onto it as
+a `std::string` (no fixed limit) - the same pattern the race-row branch
+and tooltip text already use. `Fmt()`'s buffer is 2048 bytes, sized for a
+worst-case 255-character NTFS filename component in CJK (~765 UTF-8
+bytes).
+
+Tooltip sizing uses `Glyphs()` (counts UTF-8 lead bytes) rather than
+`std::string::size()` (raw bytes), since one visual character can be 2-3
+bytes.
 
 ## Build environment (one-time)
 
-1. VC++ 2010 x64 platform toolset.
-   Visual Studio 2010 Ultimate ISO from archive.org (hash-verified against
-   the published MD5/SHA1 before mounting), installing only Visual C++ ->
-   X64 Compilers and Tools. Used due to the asks of RE_Kenshi/KenshiLib
-2. KenshiLib SDK: `BFrizzleFoShizzle/KenshiLib_Examples_deps` (Boost 1.60 +
-   Ogre + MyGUI headers, prebuilt libs) plus the KenshiLib release zip
-   (`KenshiReclaimer/KenshiLib`) for `KenshiLib.lib` and `Include/`. Staged
-   under `sdk/` next to this project; `Directory.Build.props` resolves
-   `KENSHILIB_DIR` / `BOOST_INCLUDE_PATH`
+1. VC++ 2010 x64 platform toolset. Visual Studio 2010 Ultimate ISO from
+   archive.org (hash-verified against the published MD5/SHA1 before
+   mounting), installing only Visual C++ -> X64 Compilers and Tools.
+   Required by RE_Kenshi/KenshiLib.
+2. KenshiLib SDK: `BFrizzleFoShizzle/KenshiLib_Examples_deps` (Boost 1.60
+   + Ogre + MyGUI headers, prebuilt libs) plus the KenshiLib release zip
+   (`KenshiReclaimer/KenshiLib`) for `KenshiLib.lib` and `Include/`.
+   Staged under `sdk/` next to this project; `Directory.Build.props`
+   resolves `KENSHILIB_DIR` / `BOOST_INCLUDE_PATH`.
 
 ```
 msbuild PlayableConfigurable.vcxproj /p:Configuration=Release /p:Platform=x64
@@ -319,13 +211,14 @@ msbuild PlayableConfigurable.vcxproj /p:Configuration=Release /p:Platform=x64
 
 ## Shipping / Deploy
 
-`dist/PlayableConfigurable/` holds exactly what users get: a **0-record stub
-`.mod`** (the carrier so Kenshi lists the folder), `RE_Kenshi.json` declaring
-`PreloadPlugins`, the DLL, `README.txt`, and `COPYING.txt` (GPLv3, required -
-KenshiLib linkage). Source itself is no longer bundled inline - it's at
+`dist/PlayableConfigurable/` holds exactly what users get: a **0-record
+stub `.mod`** (the carrier so Kenshi lists the folder), `RE_Kenshi.json`
+declaring `PreloadPlugins`, the DLL, `README.txt`, and `COPYING.txt`
+(GPLv3, required - KenshiLib linkage). Source itself is not bundled
+inline - it's at
 https://github.com/RongSongRangeria/PlayableConfigurable (linked from
-`README.txt`), which is what the repo this file lives in actually is. To
-deploy manually, copy into `...\Kenshi\mods\PlayableConfigurable\`:
+`README.txt`), which is what this repository is. To deploy manually,
+copy into `...\Kenshi\mods\PlayableConfigurable\`:
 
 - `PlayableConfigurable.dll`
 - `PlayableConfigurable.mod`
@@ -339,30 +232,28 @@ Config is written by the in-game window at
 `mods\PlayableConfigurable\PlayableConfigurable.config.txt` if that folder
 exists, else `%LOCALAPPDATA%\kenshi\PlayableConfigurable.config.txt`.
 
-Requires RE_Kenshi with KenshiLib. `PreloadPlugins` (what this plugin uses)
-was introduced in v0.3.0. So theoretically it would work with V0.3.0, but it was built with V0.3.4
+Requires RE_Kenshi with KenshiLib. `PreloadPlugins` (what this plugin
+uses) was introduced in v0.3.0 - built and tested against v0.3.4.
 
 **Before uploading, diff the live install's `.mod` against `dist/`'s.**
 Running the generator, or any test that touches the live
 `mods\PlayableConfigurable\` folder, silently overwrites the shipping
-0-record stub with a real generated one - happened again during this
-session's language work (a 1535-byte edit-type `.mod` sitting where the
-227-byte stub should've been, caught by comparing file sizes before this
-build's deploy). FCS uploads whatever is in the live install folder, not
-`dist/`, so a stale stub here ships broken/frozen data to every subscriber
-without any build error to catch it.
+0-record stub with a real generated one. FCS uploads whatever is in the
+live install folder, not `dist/`, so a stale stub here ships
+broken/frozen data to every subscriber without any build error to catch
+it.
 
 ## Verified behavior
 
-- Fresh install, no config: `0 enabled, 0 disabled` - a true no-op against
-  whatever the loaded mods themselves mark playable.
-- Toggling in-game applies live, no restart, confirmed by reading the actual
-  character creator (not just the log) before and after a toggle.
-- Disabling the mod in `mods.cfg` leaves the plugin fully inert (confirmed by
-  log: it loads, checks, and returns before touching anything).
-- `Unlock forced starts`: turning it on takes effect immediately; turning it
-  back off needs a relaunch, since the original per-start restriction is only
-  ever cleared, never restored from memory.
+- Fresh install, no config: `0 enabled, 0 disabled` - a true no-op
+  against whatever the loaded mods themselves mark playable.
+- Toggling in-game applies live, no restart, confirmed by reading the
+  actual character creator (not just the log) before and after a toggle.
+- Disabling the mod in `mods.cfg` leaves the plugin fully inert (confirmed
+  by log: it loads, checks, and returns before touching anything).
+- `Unlock forced starts`: turning it on takes effect immediately; turning
+  it back off needs a relaunch, since the original per-start restriction
+  is only ever cleared, never restored from memory.
 
 ## Caveats
 
@@ -385,8 +276,8 @@ alongside the DLL. Built against
 
 ## Alias key
 
-`PlayableConfigurable.cpp` uses short aliases throughout. Every one is defined at
-the top of the file and listed here.
+`PlayableConfigurable.cpp` uses short aliases throughout. Every one is
+defined at the top of the file and listed here.
 
 ### Type aliases
 
@@ -470,181 +361,182 @@ the top of the file and listed here.
 
 ## Source notes
 
-`PlayableConfigurable.cpp` is comment-free in source order, keyed to
-the identifier it described, is documentation
+`PlayableConfigurable.cpp` is comment-free; this section is the reference
+documentation, keyed to the identifier it describes.
 
 ### `Cfg::states`
 race stringId -> desired state (true = playable).
 
 ### `Rows`
-Game-filled lektor buffers are malloc-owned and NOT freed by lektor's destructor -
-the caller must release `stuff` (RaceChange_Extension precedent: *"release
-matches.stuff before returning ... otherwise a repeated dialogue action can leak
-memory"*). `Rows` is the RAII wrapper that guarantees this for every query.
+Game-filled lektor buffers are malloc-owned and NOT freed by lektor's
+destructor - the caller must release `stuff` (RaceChange_Extension
+precedent: *"release matches.stuff before returning ... otherwise a
+repeated dialogue action can leak memory"*). `Rows` is the RAII wrapper
+that guarantees this for every query.
 
 ### `CfgPath`
-Config lives in the game-relative mod folder (synced there by `Play-Kenshi.ps1` /
-deployed next to the DLL); falls back to the DLL's own directory.
+Config lives in the game-relative mod folder (synced there by
+`Play-Kenshi.ps1` / deployed next to the DLL); falls back to
+`%LOCALAPPDATA%\kenshi\`.
 
 ### `LoadCfg`
 Race lines are `state | stringId | name | note`.
 
 ### `Apply`
-- Opens with a recursion guard and an `ou` null-check (it also runs at preload,
-  where game data is still empty - a harmless no-op).
-- Builds `grouped` (the set of race sids currently in >=1 RACE_GROUP) with one
-  pass over `RACE_GROUP` records.
-- Per race: `vis = playable && limits && group` is the current visibility;
-  `Orig` remembers it the first time it's seen. Skips instantly if the desired
-  state already matches `vis`.
-- Enable: set `playable = true`, borrow an editor-limits xml if missing, and
-  create/reuse `PCG::<sid>` ONLY if the race has no group at all yet. A race
-  with no limits is skipped unless `allowAnimals`.
-- Disable: set `playable = false`. That's it - group membership is left alone
-  (see "Visibility model" above for why).
+- Opens with a recursion guard and an `ou` null-check (it also runs at
+  preload, where game data is still empty - a harmless no-op).
+- Builds `grouped` (the set of race sids currently in >=1 RACE_GROUP)
+  with one pass over `RACE_GROUP` records.
+- Per race: `vis = playable && limits && group` is the current
+  visibility; `Orig` remembers it the first time it's seen. Skips
+  instantly if the desired state already matches `vis`.
+- Enable: set `playable = true`, borrow an editor-limits xml if missing,
+  and create/reuse `PCG::<sid>` ONLY if the race has no group at all yet.
+  A race with no limits is skipped unless `allowAnimals`.
+- Disable: set `playable = false`. That's it - group membership is left
+  alone (see "Visibility model" above for why).
 - The schema default for an absent `playable` is TRUE (per `fcs.def`).
-- Runtime group ids are deterministic and never serialized to a .mod file.
+- Runtime group ids are deterministic and never serialized to a .mod
+  file.
 - Finally, optionally lifts per-start creator locks.
 
 ### `PostProcess_hook`
-Runs `Apply()` BEFORE the original post-processing, so our edits are in place
-when the engine builds `RaceData` / `RaceGroupData` - the caches the character
-editor enumerates. This is why the plugin must load as a **preload** plugin.
-Re-applying on later reloads (save import, mod-list change) is idempotent.
+Runs `Apply()` BEFORE the original post-processing, so our edits are in
+place when the engine builds `RaceData` / `RaceGroupData` - the caches the
+character editor enumerates. This is why the plugin must load as a
+**preload** plugin. Re-applying on later reloads (save import, mod-list
+change) is idempotent.
 
 ### UI section
-In-game config window (title-screen MyGUI, KillButton pattern). Only skins proven
-on this install are used: `Kenshi_WindowCX`, `Kenshi_Button1`, `Kenshi_ScrollView` -
-all three are ResourceLayout *templates* in
-`data\gui\templates\kenshi_templates.xml`, which MyGUI accepts as skin names.
+In-game config window (title-screen MyGUI, KillButton pattern). Only
+skins proven on this install are used: `Kenshi_WindowCX`,
+`Kenshi_Button1`, `Kenshi_ScrollView` - all three are ResourceLayout
+*templates* in `data\gui\templates\kenshi_templates.xml`, which MyGUI
+accepts as skin names.
 
-Rows live in a `Kenshi_ScrollView` canvas (pixel coords), so the list scrolls
-instead of paging - a 169-member group is browsable in one place. Every toggle
-saves the config file AND re-applies to live GameData immediately.
+Rows live in a `Kenshi_ScrollView` canvas (pixel coords), so the list
+scrolls instead of paging - a 169-member group is browsable in one place.
+Every toggle saves the config file AND re-applies to live GameData
+immediately.
 
 ### `C_ON` / `C_OFF` / `C_MIX` / `C_WARN`
-Native-Kenshi palette: warm white for active, dim grey for inactive, a middle
-tone for partially-enabled groups, and a warm red reserved for `langWarn`'s
-font-not-loaded message.
+Native-Kenshi palette: warm white for active, dim grey for inactive, a
+middle tone for partially-enabled groups, and a warm red reserved for
+`langWarn`'s font-not-loaded message.
 
 ### `Race::origin`
 Provenance label derived from the stringID suffix.
 
 ### `Cat`
-Display category = a real RACE_GROUP record (Human, Hive, Skeleton...); our own
-synthetic per-race groups are filtered out of the view. `mem` holds indices into
-the race list.
+Display category = a real RACE_GROUP record (Human, Hive, Skeleton...);
+our own synthetic per-race groups are filtered out of the view. `mem`
+holds indices into the race list.
 
 ### `Row`
-`cat` indexes the category list; `race` indexes the race list, and is -1 for
-headers.
+`cat` indexes the category list; `race` indexes the race list, and is -1
+for headers.
 
 ### `OpenMemo`
 group sid -> expanded, survives rebuilds.
 
 ### `VANILLA`
-Base-game data files. A record whose stringID ends in one of these was defined by
-vanilla Kenshi (incl. the Newland-era base mods), not by a workshop/local mod.
+Base-game data files. A record whose stringID ends in one of these was
+defined by vanilla Kenshi (incl. the Newland-era base mods), not by a
+workshop/local mod.
 
 ### `Org`
 `"17-gamedata.quack"` -> `"Vanilla (gamedata.quack)"`;
 `"123-Some Mod.mod"` -> `"Mod: Some Mod.mod"`.
 
 ### `SaveCfg`
-Everything currently listed gets an explicit line; entries for races whose mods
-are absent right now are preserved so they keep their state when the mod returns.
-(Generator-written notes are regenerated by the generator; the plugin writes
-empty notes.)
+Everything currently listed gets an explicit line; entries for races
+whose mods are absent right now are preserved so they keep their state
+when the mod returns. (Generator-written notes are regenerated by the
+generator; the plugin writes empty notes.)
 
 ### `Scan`
-Category membership is read straight from each RACE_GROUP's live `races` list -
-safe to do directly now that `Apply` never removes a race from a group, so a
-disabled race is always still listed under its real category. Hidden from the
-view: our synthetic `PCG::` groups and generated-mod groups
-(`*-PlayableConfigurable.mod`).
+Category membership is read straight from each RACE_GROUP's live `races`
+list - safe to do directly since `Apply` never removes a race from a
+group, so a disabled race is always still listed under its real category.
+Hidden from the view: our synthetic `PCG::` groups and generated-mod
+groups (`*-PlayableConfigurable.mod`).
 
-Races in no RACE_GROUP at all (no engine signal exists to relate them - see
-`isRelatedRace` below) are bucketed by origin instead of dumped into one flat
-list: all vanilla-origin ones share an `"Ungrouped: Vanilla"` category, and
-every other mod gets its own `"Ungrouped: <file>"` category (`sid`-prefixed
-`::vanilla` / `::mod:<file>` so they never collide with a real group's sid).
-One mod contributing few ungrouped races produces a small category - expected,
-not a bug.
+Races in no RACE_GROUP at all (no engine signal exists to relate them -
+see `isRelatedRace` below) are bucketed by origin instead of dumped into
+one flat list: all vanilla-origin ones share an `"Ungrouped: Vanilla"`
+category, and every other mod gets its own `"Ungrouped: <file>"` category
+(`sid`-prefixed `::vanilla` / `::mod:<file>` so they never collide with a
+real group's sid).
 
-Every `Cat` also gets a `tier` (0 = the group RECORD's own origin is vanilla,
-1 = a mod defined the group, 2 = the synthetic ungrouped buckets - always tier
-2, since being ungrouped is what put them there), and `ByCat` sorts tier first.
-`Flat()` inserts a non-interactive divider `Row` (`kind = 0`) whenever the tier
-changes, labelled from `TIER_NAMES`, so the window reads as three sections:
-Race Groups, Modded Groups, Uncategorized.
+Every `Cat` also gets a `tier` (0 = the group RECORD's own origin is
+vanilla, 1 = a mod defined the group, 2 = the synthetic ungrouped buckets
+- always tier 2, since being ungrouped is what put them there), and
+`ByCat` sorts tier first. `Flat()` inserts a non-interactive divider `Row`
+(`kind = 0`) whenever the tier changes, so the window reads as three
+sections: Race Groups, Modded Groups, Uncategorized.
 
-Dividers render as plain centered text (`Kenshi_TextboxStandardText`, a real
-`MyGUI::TextBox` skin lifted from Kenshi's own layouts - used 22 places
-game-side, e.g. its Main Menu labels), not a button: no border, no hover
-highlight, no click handler wired. `TextBox` and `Button` are different C++
-types in MyGUI, so dividers get their own `poolD` rather than reusing `poolR`.
+Dividers render as plain centered text (`Kenshi_TextboxStandardText`, a
+real `MyGUI::TextBox` skin lifted from Kenshi's own layouts), not a
+button: no border, no hover highlight, no click handler wired. `TextBox`
+and `Button` are different C++ types in MyGUI, so dividers get their own
+`poolD` rather than reusing `poolR`.
 
-### `isRelatedRace` (considered, not used)
+### `isRelatedRace` (not used)
 `RaceData::raceGroup` and `RaceData::isRelatedRace(...)` exist in the SDK
-headers but were empirically dead at every point this plugin can run: a
-diagnostic probe (built, deployed, logged, then reverted) found `raceGroup`
-null on every race - including known-grouped ones - even well after the
-engine's own postProcessingTheDatas, and `isRelatedRace` false for every
-distinct pair tested (Greenlander/Scorchlander despite sharing the Human
-group). That data is evidently built lazily by the character-editor UI itself
-when opened, which a plugin cannot trigger. Do not reach for it again without
-new evidence.
+headers but are empirically dead at every point this plugin can run:
+`raceGroup` is null on every race (including known-grouped ones) even
+after `postProcessingTheDatas`, and `isRelatedRace` returns false for
+every distinct pair tested (e.g. Greenlander/Scorchlander despite sharing
+the Human group). This data is evidently built lazily by the
+character-editor UI itself when opened, which a plugin cannot trigger.
 
 ### `Idx`
-Display index parsed from widget names `PCRow<i>` / `PCExp<i>` (5-char prefixes);
-with the scroll view each widget maps 1:1 to a display row.
+Display index parsed from widget names `PCRow<i>` / `PCExp<i>` (5-char
+prefixes); with the scroll view each widget maps 1:1 to a display row.
 
 ### `OnPreset`
-One handler for all four preset buttons, keyed by the digit in its widget name:
+One handler for all four preset buttons, keyed by the digit in its widget
+name:
 
 | key | button | rule |
 |---|---|---|
 | 0 | ENABLE ALL | every race on |
 | 1 | DISABLE ALL | every race off |
-| 2 | DEFAULT ALL | `Orig` - each race's pristine visibility as the CURRENTLY loaded mods (and vanilla) themselves assert it, captured before this plugin edits anything. This is "the mods' playables": whatever a mod marks playable+grouped stays on, same as an unlisted race's default. |
-| 3 | VANILLA ONLY | `VanillaPlayable(sid)` - exactly the 8 races vanilla itself makes selectable (`VANILLA_PLAYABLE`, hardcoded; see below), regardless of what any loaded mod did to those records' current group/limits. Deliberately NOT `Orig`-based: a mod can patch a vanilla race's group without touching its own file, which would silently drop it from an `Orig`-driven vanilla filter even though vanilla always considered it playable. |
+| 2 | DEFAULT ALL | `Orig` - each race's pristine visibility as the currently loaded mods (and vanilla) themselves assert it, captured before this plugin edits anything. |
+| 3 | VANILLA ONLY | `VanillaPlayable(sid)` - exactly the 8 races vanilla itself makes selectable (`VANILLA_PLAYABLE`, hardcoded), regardless of what any loaded mod did to those records' current group/limits. Deliberately NOT `Orig`-based: a mod can patch a vanilla race's group without touching its own file, which would silently drop it from an `Orig`-driven vanilla filter even though vanilla always considered it playable. |
 
-`VANILLA_PLAYABLE` is a fixed 8-sid table (Greenlander, Scorchlander, Shek,
-Skeleton, Fishman, Hive Prince, Hive Soldier Drone, Hive Worker Drone) -
-Kenshi's own vanilla-selectable set, the same game data on every install, so
-hardcoding it is safe. Verified twice: parsing the 4 base files alone
-(`Get-VanillaBaseline.ps1`) and by the user reading the creator on a genuine
-0-mod install in-game (only Fishman wasn't independently confirmed there,
-because the vanilla start used carries its own `force race` list that excludes
-it - a start-level restriction, not a race-level one; `@clearForceRace` is the
-separate lever for that).
+`VANILLA_PLAYABLE` is a fixed 8-sid table (Greenlander, Scorchlander,
+Shek, Skeleton, Fishman, Hive Prince, Hive Soldier Drone, Hive Worker
+Drone) - Kenshi's own vanilla-selectable set, the same game data on every
+install.
 
 ### `BuildUi`
-The title screen can be constructed repeatedly (quit to menu); if MyGUI still
-holds our widgets we reuse them, and only rebuild if it wiped them.
+The title screen can be constructed repeatedly (quit to menu); if MyGUI
+still holds our widgets we reuse them, and only rebuild if it wiped them.
 
-Layout order: 2x2 preset block, then the scrolling list (Kenshi's own ScrollView
-template with its styled vertical scrollbar), then the two option toggles.
+Layout order: 2x2 preset block, then the scrolling list (Kenshi's own
+ScrollView template with its styled vertical scrollbar), then the two
+option toggles, then the language row and warning row.
 
-The provenance tooltip sits on the `ToolTip` layer, which has `Pick=false`, so it
-never steals the mouse.
+The provenance tooltip sits on the `ToolTip` layer, which has
+`Pick=false`, so it never steals the mouse.
 
 ### `Ensure`
 Row widgets are pooled and reused: created once on demand, then only
 repositioned/recaptioned. The widget name encodes the display index.
 
 ### `Title_hook`
-Title screen constructor hook: UI thread, MyGUI ready - safe to build here.
+Title screen constructor hook: UI thread, MyGUI ready - safe to build
+here.
 
 ### `TitleShow_hook`
-Main-menu-only visibility: the RACES button mirrors the title screen's own
-show/hide, so it disappears the moment a game starts or loads and returns on
-quit-to-menu. The window and tooltip are force-closed on hide.
+Main-menu-only visibility: the RACES button mirrors the title screen's
+own show/hide, so it disappears the moment a game starts or loads and
+returns on quit-to-menu. The window and tooltip are force-closed on hide.
 
 ### `startPlugin`
-Runs at preload, so it only installs hooks and loads config; the UI is built
-later by the title-screen hook, and the real work happens in `PostProcess_hook`
-during data load. Installs three hooks (each degrades gracefully with an
-`Err(...)` if it fails), builds the UI immediately when the title screen
-already exists - postload runs after its construction - and applies once at
-startup, since postload plugins start with `ou->gamedata` fully merged.
+Runs at preload, so it only installs hooks and loads config; the UI is
+built later by the title-screen hook, and the real work happens in
+`PostProcess_hook` during data load. Installs three hooks (each degrades
+gracefully with an `Err(...)` if it fails), builds the UI immediately if
+the title screen already exists, and applies once at startup.
